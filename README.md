@@ -18,3 +18,6 @@ curl -O -L https://github.com/PATRIC3/PATRIC-distribution/releases/download/1.02
 sudo dpkg -i patric-cli-1.024.deb
 sudo sudo apt-get -f install
 ```
+A full integration of the P3-API is coming soon
+
+## Quick guide
