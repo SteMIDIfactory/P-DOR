@@ -141,13 +141,3 @@ os.system(cmd)
 
 cmd="cp %s/SNPs_Plots/overlap_plot.png %s/" %(Results_folder_name,Results_folder_name)
 os.system(cmd)
-
-time=float(time.time() - start_time)
-hours=int(time/3600)
-minutes=((time/3600)-hours)*60
-print("\n\n\n\n\n\n\n\n\n")
-print("####################\n")
-print ("Fai ballare l'occhio sul tic!\nVia della Spiga --> Hotel Cristallo di Cortina in %i ore e %f minuti...\nTorsten Seemann is nothing! See u later!!!\n" %(hours,minutes))
-print("####################\n")
-
-
