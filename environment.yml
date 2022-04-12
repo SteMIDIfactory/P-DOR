@@ -1,5 +1,6 @@
 name: P-DOR
 channels:
+  - anaconda
   - conda-forge
   - bioconda
   - defaults
@@ -8,31 +9,55 @@ dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=1_gnu
   - abricate=0.8=pl526ha92aebf_1
-  - blast=2.12.0=pl5262h3289130_0
+  - attrs=20.2.0=py_0
+  - backcall=0.2.0=py_0
+  - biopython=1.79=py39h3811e60_1
+  - blast=2.12.0=h3289130_3
+  - brotli=1.0.9=he6710b0_2
+  - brotlipy=0.7.0=py39h3811e60_1003
   - bzip2=1.0.8=h7f98852_4
   - c-ares=1.18.1=h7f98852_0
-  - ca-certificates=2021.10.8=ha878542_0
+  - ca-certificates=2020.10.14=0
+  - cachecontrol=0.12.6=py_0
   - cached-property=1.5.2=hd8ed1ab_1
   - cached_property=1.5.2=pyha770c72_1
+  - certifi=2021.10.8=py39hf3d152e_1
+  - cffi=1.15.0=py39h4bc2ebd_0
+  - charset-normalizer=2.0.11=pyhd8ed1ab_0
+  - cryptography=36.0.0=py39h9ce1e76_0
   - curl=7.81.0=h494985f_0
-  - emboss=6.6.0=h6debe1e_0
+  - cycler=0.11.0=pyhd8ed1ab_0
+  - cython=0.29.27=py39he80948d_0
+  - decorator=4.4.2=py_0
+  - emboss=6.6.0=h440b012_4
   - entrez-direct=16.2=he881be0_0
   - expat=2.4.4=h9c3ff4c_0
   - font-ttf-dejavu-sans-mono=2.37=hab24e00_0
   - font-ttf-inconsolata=3.000=h77eed37_0
   - font-ttf-source-code-pro=2.038=h77eed37_0
   - font-ttf-ubuntu=0.83=hab24e00_0
-  - fontconfig=2.13.94=ha180cfb_0
+  - fontconfig=2.13.96=ha180cfb_0
   - fonts-conda-ecosystem=1=0
   - fonts-conda-forge=1=0
+  - fonttools=4.29.1=py39h3811e60_0
   - freetype=2.10.4=h0708190_1
   - giflib=5.2.1=h36c2ea0_2
-  - h5py=3.6.0=nompi_py310he751f51_100
+  - h5py=3.6.0=nompi_py39h7e08c79_100
   - hdf5=1.12.1=nompi_h7f166f4_103
+  - hdmedians=0.14.2=py39hce5d2b2_1
   - icu=69.1=h9c3ff4c_0
+  - idna=2.10=py_0
+  - importlib-metadata=2.0.0=py_1
+  - importlib_metadata=2.0.0=1
+  - iniconfig=1.1.1=py_0
+  - ipython=7.31.1=py39hf3d152e_0
   - jbig=2.1=h7f98852_2003
+  - jedi=0.18.1=py39hf3d152e_0
+  - joblib=0.17.0=py_0
   - jpeg=9e=h7f98852_0
+  - kiwisolver=1.3.2=py39h1a9c180_1
   - krb5=1.19.2=h48eae69_3
+  - lcms2=2.11=h396b838_0
   - ld_impl_linux-64=2.36.1=hea4e1c9_2
   - lerc=3.0=h9c3ff4c_0
   - libblas=3.9.0=13_linux64_openblas
@@ -62,15 +87,25 @@ dependencies:
   - libwebp-base=1.2.2=h7f98852_1
   - libxml2=2.9.12=h885dcf4_1
   - libzlib=1.2.11=h36c2ea0_1013
+  - lockfile=0.12.2=py_1
   - lz4-c=1.9.3=h9c3ff4c_1
+  - matplotlib-base=3.5.1=py39h2fa2bec_0
+  - matplotlib-inline=0.1.3=pyhd8ed1ab_0
+  - msgpack-python=1.0.3=py39h1a9c180_0
+  - munkres=1.1.4=py_0
+  - natsort=7.0.1=py_0
   - ncurses=6.3=h9c3ff4c_0
-  - numpy=1.22.2=py310h454958d_0
+  - numpy=1.22.2=py39h91f2184_0
+  - olefile=0.46=py_0
   - openblas=0.3.18=pthreads_h4748800_0
   - openssl=3.0.0=h7f98852_2
+  - packaging=20.4=py_0
+  - pandas=1.4.0=py39hde0f152_0
+  - parso=0.8.0=py_0
   - pcre=8.45=h9c3ff4c_0
   - perl=5.26.2=h36c2ea0_1008
   - perl-archive-tar=2.18=1
-  - perl-bioperl=1.6.924=4
+  - perl-bioperl=1.6.924=2
   - perl-carp=1.38=pl526_3
   - perl-common-sense=3.74=pl526_2
   - perl-encode-locale=1.05=pl526h470a237_5
@@ -90,19 +125,44 @@ dependencies:
   - perl-threaded=5.32.1=hdfd78af_1
   - perl-types-serialiser=1.0=pl526_2
   - perl-xsloader=0.24=pl526_0
-  - perl-yaml=1.29=pl526_0
+  - pexpect=4.8.0=pyh9f0ad1d_2
+  - pickleshare=0.7.5=py_1003
+  - pillow=7.2.0=py39h6f3857e_2
   - pip=22.0.3=pyhd8ed1ab_0
-  - pp-sketchlib=1.7.4=py310h65f7557_2
-  - python=3.10.2=hc74c709_3_cpython
-  - python_abi=3.10=2_cp310
+  - pluggy=0.12.0=py_0
+  - pp-sketchlib=1.7.4=py39h2d76373_2
+  - prompt-toolkit=3.0.8=py_0
+  - ptyprocess=0.7.0=pyhd3deb0d_0
+  - py=1.9.0=py_0
+  - pycparser=2.20=py_2
+  - pygments=2.7.1=py_0
+  - pyopenssl=19.1.0=py_1
+  - pyparsing=2.4.7=py_0
+  - pysocks=1.7.1=py39hf3d152e_4
+  - pytest=7.0.0=py39hf3d152e_0
+  - python=3.9.10=hc74c709_2_cpython
+  - python-dateutil=2.8.1=py_0
+  - python_abi=3.9=2_cp39
+  - pytz=2020.1=py_0
   - readline=8.1=h46c0cb4_0
-  - scipy=1.7.3=py310hea5193d_0
-  - setuptools=60.7.1=py310hff52083_0
+  - requests=2.27.1=pyhd8ed1ab_0
+  - scikit-bio=0.5.6=py39h16ac069_4
+  - scikit-learn=1.0.2=py39h4dfa638_0
+  - scipy=1.8.0=py39hee8e79c_1
+  - setuptools=60.8.1=py39hf3d152e_0
+  - six=1.15.0=py_0
   - sqlite=3.37.0=h9cd32fc_0
+  - threadpoolctl=2.1.0=pyh5ca1d4c_0
   - tk=8.6.11=h27826a3_1
+  - tomli=2.0.1=pyhd8ed1ab_0
+  - traitlets=5.1.1=pyhd8ed1ab_0
   - tzdata=2021e=he74cb21_0
+  - unicodedata2=14.0.0=py39h3811e60_0
   - unzip=6.0=h7f98852_3
+  - urllib3=1.25.11=py_0
+  - wcwidth=0.2.5=py_0
   - wheel=0.37.1=pyhd8ed1ab_0
   - xz=5.2.5=h516909a_1
+  - zipp=3.3.1=py_0
   - zlib=1.2.11=h36c2ea0_1013
   - zstd=1.5.2=ha95c52a_0
