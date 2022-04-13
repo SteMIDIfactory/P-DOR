@@ -76,8 +76,8 @@ timelineplot <- ggplot(ricoveri, start=ward_date_entry, end=ward_date_exit, aes(
 
 #
 #
-var_height<-length(unique(ricoveri$ID_registry))*0.03
+#var_height<-length(unique(ricoveri$ID_registry))*0.03
 #
 
-ggsave(timelineplot, filename = "timeline.png",width = 40, height =var_height , units = "cm")
+ggsave(timelineplot, filename = "timeline.png",width = 40, height =40 , units = "cm")
 # ##############################################################################################################
