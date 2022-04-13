@@ -11,9 +11,8 @@ for x in SeqIO.parse(inF,"fasta"):
 	for i in range(1,len(str(x.seq))+1):
 		tot+=1
 		string="%s\t%i\t%i" %(str(x.id),i,tot)
-		print string
+		print(string)
 	tot+=nnnum
 
 
 inF.close()
-		
