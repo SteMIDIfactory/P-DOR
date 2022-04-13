@@ -22,5 +22,9 @@ A full integration of the P3-API is coming soon
 
 ## Quick guide
 
-
+## Pre-sketched databases
+Pre-sketched ESKAPE genomes are available at:
+```
+https://drive.google.com/drive/folders/1lrr0tQn0RRwsHw54zRlZIMIhmdMnZi2Q
+```
 ## Coming soon
