@@ -1,9 +1,8 @@
 name: P-DOR
 channels:
-  - conda-forge
   - bioconda
+  - conda-forge
   - defaults
-  - r
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=1_gnu
@@ -92,6 +91,7 @@ dependencies:
   - openssl=3.0.2=h166bdaf_1
   - pandoc=2.18=ha770c72_0
   - pango=1.50.6=hbd2fdc8_0
+  - parallel=20220222=ha770c72_0
   - pcre=8.45=h9c3ff4c_0
   - pcre2=10.37=h032f7d1_0
   - perl=5.32.1=2_h7f98852_perl5
