@@ -1,5 +1,5 @@
 # P-DOR <img src='p-dor_logo.png' align="right" height="159" />
-Quick and easy outbreak reconstruction pipeline
+Quick and easy outbreak reconstruction pipeline.
 
 ## Installation
 
