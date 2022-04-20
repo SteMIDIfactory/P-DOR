@@ -6,6 +6,7 @@ library(ggplot2)
 library(pheatmap)
 library(RColorBrewer)
 library(viridis)
+library(igraph)
 
 
 args=commandArgs(trailingOnly = TRUE)
@@ -53,4 +54,16 @@ dist_matrix_query_vs_all<-dist_matrix[rownames(query_genomes),]
 svg(filename = "SNP_heatmap_query_vs_all.svg",
    width = 10, height = 10, pointsize = 8)
 query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100))
+dev.off()
+
+###
+mm<-melt(dist_matrix)
+mm<-mm[which(mm$value<snp_threshold & mm$Var1!=mm$Var2),]
+links<-mm[,c(1,2)]
+
+
+svg(filename = "SNP_clusters.svg",
+    width = 10, height = 10, pointsize = 8)
+gr<-graph_from_data_frame(links, directed = TRUE)
+plot(gr)
 dev.off()
