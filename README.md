@@ -61,3 +61,7 @@ Pre-sketched ESKAPE genomes are available at:
 https://drive.google.com/drive/folders/1lrr0tQn0RRwsHw54zRlZIMIhmdMnZi2Q
 ```
   ### Coming soon
+- Implementation of the Outbreaker2 R library, for the reconstruction of the chain of transmission
+- A quicker implementation of the Purple algorithm
+- Genome characterization: MLST, detection of antimicrobial resistance and virulence genes
+- Utilization of secondary SNP alignments (e.g. codon 3rd position SNP alignment, intergenic SNP alignment) for downstream analyses
