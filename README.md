@@ -1,4 +1,5 @@
-# P-DOR <img src='p-dor_logo.png' align="right" height="159" />
+[![DOI](https://zenodo.org/badge/455542613.svg)](https://zenodo.org/badge/latestdoi/455542613)
+# P-DOR <img src='p-dor_logo.png' align="right" height="159" /> 
 Quick and easy outbreak reconstruction pipeline.
 
 ## Installation
