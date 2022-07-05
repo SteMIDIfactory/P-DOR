@@ -1,7 +1,8 @@
 name: P-DOR
 channels:
-  - conda-forge
   - bioconda
+  - r
+  - conda-forge
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
@@ -11,6 +12,7 @@ dependencies:
   - binutils_impl_linux-64=2.36.1=h193b22a_2
   - binutils_linux-64=2.36=hf3e587d_9
   - bioconductor-ggtree=2.4.1=r40hdfd78af_0
+  - bioconductor-ggtreeextra=1.0.2=r40hdfd78af_0
   - bioconductor-treeio=1.14.3=r40hdfd78af_0
   - biopython=1.79=py39h3811e60_1
   - blast=2.12.0=hf3cf87c_4
@@ -159,7 +161,7 @@ dependencies:
   - r-dbplyr=2.1.1=r40hc72bb7e_0
   - r-desc=1.4.1=r40hc72bb7e_0
   - r-digest=0.6.29=r40h03ef668_0
-  - r-dplyr=1.0.8=r40h7525677_0
+  - r-dplyr=1.0.5=r40h03ef668_0
   - r-dtplyr=1.2.1=r40hc72bb7e_0
   - r-ellipsis=0.3.2=r40hcfec24a_0
   - r-evaluate=0.15=r40hc72bb7e_0
@@ -173,6 +175,7 @@ dependencies:
   - r-generics=0.1.2=r40hc72bb7e_0
   - r-gganimate=1.0.7=r40hc72bb7e_0
   - r-ggfun=0.0.6=r40hc72bb7e_0
+  - r-ggnewscale=0.4.7=r40hc72bb7e_0
   - r-ggplot2=3.3.5=r40hc72bb7e_0
   - r-ggplotify=0.1.0=r40hc72bb7e_0
   - r-ggrepel=0.9.1=r40h03ef668_0
@@ -235,7 +238,7 @@ dependencies:
   - r-rmarkdown=2.13=r40hc72bb7e_1
   - r-rprojroot=2.0.3=r40hc72bb7e_0
   - r-rstudioapi=0.13=r40hc72bb7e_0
-  - r-rvcheck=0.2.1=r40hc72bb7e_0
+  - r-rvcheck=0.1.8=r40hc72bb7e_1
   - r-rvest=1.0.2=r40hc72bb7e_0
   - r-sass=0.4.1=r40h7525677_0
   - r-scales=1.1.1=r40hc72bb7e_0
