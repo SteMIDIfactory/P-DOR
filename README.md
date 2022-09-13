@@ -83,9 +83,10 @@ python makepdordb.py -s "Escherichia coli"
 ## Output
 1) Summary of resistance and virulence detected.
 2) Core-SNPs alignment
-3) Core‐SNPs histogram distribu�on between genome pairs. The dashed bar is set according to the threshold indicating the epidemiological clusters.
-4) Heatmap and graph network represen�ng the core-SNPs distances between all pairs of genomes.
+3) Core‐SNPs histogram distribution between genome pairs. The dashed bar is set according to the threshold indicating the epidemiological clusters.
+4) Heatmap and graph network representing the core-SNPs distances between all pairs of genomes.
 5) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters.
+6) Timeline of hospitalized patient and the bacterial samples. The timeline indicates samples isolation based on colonization and infection. The samples are linked according the their core-SNPs distance.
 
 ## Coming soon
 - Implementation of the [SCOTTI](https://github.com/Taming-the-BEAST/SCOTTI-Tutorial) tool for the reconstruction of the chain of transmission via Bayesian inference.
