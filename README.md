@@ -46,7 +46,7 @@ python P-DOR.py -q [query genome folder] -db [background sketch file] -ref [refe
 
 Input data:
   -q <dirname>          query folder containing genomes in .fna format
-  -db <dirname>         background sketch file
+  -db <filename>         background sketch file - See "Pre-sketched databases" section 
   -ref <filename>       reference genome
   -snp_thr SNP_THRESHOLD
                         Threshold number of SNPs to define an epidemic
