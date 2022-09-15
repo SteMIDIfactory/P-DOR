@@ -62,7 +62,7 @@ def logfile():
 	with open("PDOR.log","w") as p:
 		for arg, value in sorted(vars(args).items()):
 			p.write("%s\t%s\n" %(arg,value))
-			
+
 
 
 
@@ -71,14 +71,36 @@ def check_folder(folder):
 	folder_path=os.path.abspath(folder)
 	if os.path.isdir(folder):
 		sys.exit("\n\nERROR: the {} already exists!".format(folder_path))
-		#sys.stderr.write("%s %s\n" % (foo, bar))
-		#raise Exception("{} already exists".format(folder_path)) ## \nuse -f overwrite???
+		#sys.stderr.write("%s %s\n" % (foo, bar)		#raise Exception("{} already exists".format(folder_path)) ## \nuse -f overwrite???
+
+
+
+
+
+def check_res_vir(threads):
+	print ("checking for resistance and virulence genes...")
+	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
+	os.system("mkdir $HOME/.conda/envs/P-DOR/db/all_db")
+	os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
+	os.system("makeblastdb -in $HOME/.conda/envs/P-DOR/db/all_db/sequences -title all_db -dbtype nucl -hash_index")
+	#os.system("abricate --setupdb| cut -f1 | grep -vE 'plasm|DATA' >abricate_DB")
+	#abrDB=open("abricate_DB","r")
+	#for db in abrDB.readlines():
+		#db=db.strip()
+		#os.system ("wget https://raw.githubusercontent.com/tseemann/abricate/master/db/%s/sequences -O %s.seq" %(db,db))
+		#os.system("makeblastdb -in sequences -title all_abricateDB -dbtype nucl -hash_index")
+		
+
+	os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report'" %(threads))
+	os.system("cat *report >summary_resistance_virulence")
+	os.system("rm *report")
+	os.system("mv summary_resistance_virulence ../")
 
 
 def Mummer_snp_call(threads,ref):
 	print("Aligning genomes with Mummer4")
-	os.chdir("Align")
-	os.system('ls | parallel -j %i "nucmer -p {} %s {}; show-snps -H -C -I -r -T {}.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
+	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
+	os.system('ls *fna | parallel -j %i "nucmer -p {} %s {}; show-snps -H -C -I -r -T {}.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
 	os.chdir("..")
 	os.system("ls Align/*.snp >SNP_genomes.list")
 	core_snps_list_path("SNP_genomes.list", 2, "SNP_positions")
@@ -136,6 +158,8 @@ Results_folder_name="Results_%s-%s-%s_%s-%s" %(str(timefunct.year),str(timefunct
 	str(timefunct.minute))
 os.mkdir(Results_folder_name)
 logfile()
+path_dir = os.path.abspath( os.path.dirname( Results_folder_name ) ) 
+
 os.system("mv PDOR.log %s" %(Results_folder_name))
 
 
@@ -167,6 +191,10 @@ NEAREST=[i.split("/")[-1] for i in NEAREST]
 
 print ("Sketches completed...")
 
+
+
+
+
 os.chdir(Results_folder_name)
 
 with open("query_genome_list.txt","w") as q:
@@ -179,6 +207,7 @@ with open("backgroud_genome_list.txt","w") as q:
 
 
 os.mkdir("Background")
+
 
 if args.bkg_folder:
 	print ("Retrieving nearest genomes from the %s folder" %args.bkg_folder)
@@ -202,11 +231,16 @@ else:
 os.mkdir("Align")
 
 
+
+
 for i in glob.glob("Background/*"):
 	name=i.strip().split("/")[-1]
 	os.system("cp %s Align/DB_%s" %(i,name))
 
 os.system("cp %s/*.fna Align" %(ABS_query_folder))
+
+
+check_res_vir(threads)
 
 
 
@@ -215,6 +249,7 @@ if args.call == 'mummer':
 	Mummer_snp_call(threads,ref)
 elif args.call == 'purple':
 	Purple_snp_call(ref,threads,Results_folder_name)
+
 
 
 
@@ -242,13 +277,13 @@ if args.meta is not None:
 os.chdir("..")
 
 
-
 time=float(time.time() - start_time)
 hours=int(time/3600)
 minutes=((time/3600)-hours)*60
 
 #outF="Results_%s" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 #os.makedirs(outF)
+
 """
 os.makedirs("phylogeny outbreak_detection")
 os.system("mv RAxML_* phylogeny/")
@@ -262,9 +297,6 @@ print ("\n\n\n\n\n\n\n\n\n")
 print ("####################\n")
 print ("Analysis completed in %i hours and %f minutes" %(hours,minutes))
 print ("####################\n")
-
-
-
 
 
 

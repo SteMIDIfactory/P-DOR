@@ -4,6 +4,8 @@ library(ggplot2)
 library(reshape2)
 library(svglite)
 library(dplyr)
+library(RColorBrewer)
+
 
 args=commandArgs(trailingOnly = TRUE)
 
@@ -12,7 +14,6 @@ hospitalization_file <- args[1]
 #cluster_file <- args[2]
 
 hospitalization<-read.delim(hospitalization_file,sep='\t')
-#hospitalization<-read.delim("meta_ria3_pdor_INPUT.txt",sep='\t')
 
 
 ###########################################################################
@@ -22,16 +23,16 @@ hospitalization$WARD_DATE_ENTRY<-as.POSIXct(as.character(hospitalization$WARD_DA
 hospitalization$WARD_DATE_EXIT<-as.POSIXct(as.character(hospitalization$WARD_DATE_EXIT))
 ###################################################################################
 hospitalization$ISOLATION_DATE<-as.POSIXct(as.character(hospitalization$ISOLATION_DATE))
-######################## MOST WANTED BACTERIA
+######################## MOST OCCURRENT BACTERIA
 hospitalization$MATERIAL<-as.character(hospitalization$MATERIAL)
 hospitalization$status<-ifelse(hospitalization$MATERIAL != "rectal_swab", "Infection", "Colonization")
 hospitalization$STRAIN_ID<-as.character(hospitalization$STRAIN_ID)
-############################################### MOST WANTED WARD
+############################################### MOST OCCURRENT WARD
 hospitalization$WARD<-as.character(hospitalization$WARD)
 most_ward<-head(sort(table(hospitalization$WARD),decreasing = TRUE), 5) #massimo 5
 names_ward<-row.names(as.matrix(most_ward))
 WARD2<-ifelse(hospitalization$WARD %in% names_ward, hospitalization$WARD, "Other_ward")
-################################################ aggiungo colonne col vettore rinominato max 5 + other al dataframe
+################################################ 
 
 hospitalization<-cbind.data.frame(hospitalization, WARD2)
 
@@ -76,18 +77,24 @@ contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end=WARD_DATE_EXIT, 
              #position=position_jitter(h=0.02),
              alpha=1,size=5,stroke = 0.5)+scale_shape_discrete(solid=F)+
   labs(x = NULL, y = NULL, color = "ward")+scale_color_manual(values = ward)+
-  theme(axis.text.x=element_text(angle = 45, hjust = 1,size=10),
+  theme(axis.text.x=element_text(angle = 45, hjust = 1,size=15),
         axis.text.y=element_text(hjust = 1,size=15),
         legend.text=element_text(size=15),
         legend.title =element_text(size=20),
-        axis.title.x = element_text(hjust = 1,size=10))+
+        axis.title.x = element_text(hjust = 1,size=15))+
   labs(shape="condition")+ scale_linetype(guide = "none") +ggnewscale::new_scale_color() +
-  geom_line(data=clust, aes(ISOLATION_DATE,PATIENT_ID, group=cluster, linetype=cluster,color=cluster),size=0.7,alpha=0.7)
+  geom_line(data=clust, aes(ISOLATION_DATE,PATIENT_ID, group=cluster, linetype=cluster,color=cluster),size=0.9,alpha=1)+
+  scale_color_manual(values = brewer.pal(length(levels(factor(clust$cluster))), "Set1"))
+  #scale_color_manual(values = c("C6"="orange","C4"="#90EE90","C5"="#87CEEB"))
+  #scale_color_manual(values = c("C6"="#FFA500","C4"="#FF3333","C5"="#6495ED"))
+
 
 
 #adj<-ggplot_build(contact_network_plot)
 var_height<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$y$get_labels())
 var_width<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$x$get_labels())
 
-ggsave(plot = contact_network_plot, filename = "contact_network_plot.png",width = var_width, height=var_height , units = "cm",limitsize = F)
+ggsave(plot = contact_network_plot, filename = "poster_contact_network_plot.svg",
+       width = var_width, height=var_height , units = "cm",limitsize = F,scale = 2)
+
 
