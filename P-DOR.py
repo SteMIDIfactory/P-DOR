@@ -79,6 +79,7 @@ def check_folder(folder):
 
 def check_res_vir(threads):
 	print ("checking for resistance and virulence genes...")
+	
 	os.system("conda env list >path_pdor")
 	path_inF=open("path_pdor","r")
 	for i in path_inF.readlines():
@@ -86,33 +87,36 @@ def check_res_vir(threads):
 
 		try:
     			name=i[1].strip()
-	        except IndexError:
-	    		variants = 'null'
+	        
+		except IndexError:
+
+    			variants = 'null'
 
 		if name=="*":
+		
 			abricate_db_path=i[2].strip()+"/db/all_db"
 			abs_path=i[2].strip()+"/db"
-	
-	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
-	#os.system("mkdir -p $HOME/.conda/envs/P-DOR/db/all_db")
-	os.system("mkdir -p %s") %abricate_db_path
-	
-	#os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
-	os.system("cat %s/*/*sequences >%sabricate_db_path/sequences")
+		
+			cmd="mkdir -p %s" %abricate_db_path
+			os.system(cmd)
+			cmd="cat %s/*/*sequences >%s/all_db/sequences" %(abs_path,abs_path)
+			os.system(cmd)
+			cmd="makeblastdb -in %s/sequences -title all_db -dbtype nucl -hash_index" %abricate_db_path
+			os.system(cmd)
 
-	os.system("makeblastdb -in $HOME/.conda/envs/P-DOR/db/all_db/sequences -title all_db -dbtype nucl -hash_index")
+	#os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
+	#os.system("mkdir -p $HOME/.conda/envs/P-DOR/db/all_db")
+	#os.system("mkdir -p %s") %abricate_db_path
+	#os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
+	#os.system("cat %s/*/*sequences >%sabricate_db_path/sequences")
+	#os.system("makeblastdb -in $HOME/.conda/envs/P-DOR/db/all_db/sequences -title all_db -dbtype nucl -hash_index")
 	#os.system("abricate --setupdb| cut -f1 | grep -vE 'plasm|DATA' >abricate_DB")
-	#abrDB=open("abricate_DB","r")
-	#for db in abrDB.readlines():
-		#db=db.strip()
-		#os.system ("wget https://raw.githubusercontent.com/tseemann/abricate/master/db/%s/sequences -O %s.seq" %(db,db))
-		#os.system("makeblastdb -in sequences -title all_abricateDB -dbtype nucl -hash_index")
 		
 
-	os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report'" %(threads))
-	os.system("cat *report >summary_resistance_virulence")
-	os.system("rm *report")
-	os.system("mv summary_resistance_virulence ../")
+			os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report'" %(threads))
+			os.system("cat *report >summary_resistance_virulence")
+			os.system("rm *report")
+			os.system("mv summary_resistance_virulence ../")
 
 
 def Mummer_snp_call(threads,ref):
