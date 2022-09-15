@@ -80,7 +80,7 @@ def check_folder(folder):
 def check_res_vir(threads):
 	print ("checking for resistance and virulence genes...")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
-	os.system("mkdir $HOME/.conda/envs/P-DOR/db/all_db")
+	os.system("mkdir -p $HOME/.conda/envs/P-DOR/db/all_db")
 	os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
 	os.system("makeblastdb -in $HOME/.conda/envs/P-DOR/db/all_db/sequences -title all_db -dbtype nucl -hash_index")
 	#os.system("abricate --setupdb| cut -f1 | grep -vE 'plasm|DATA' >abricate_DB")
