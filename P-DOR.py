@@ -79,9 +79,27 @@ def check_folder(folder):
 
 def check_res_vir(threads):
 	print ("checking for resistance and virulence genes...")
+	os.system("conda env list >path_pdor")
+	path_inF=open("path_pdor","r")
+	for i in path_inF.readlines():
+		i=i.strip().split()
+
+		try:
+    			name=i[1].strip()
+	        except IndexError:
+	    		variants = 'null'
+
+		if name=="*":
+			abricate_db_path=i[2].strip()+"/db/all_db"
+			abs_path=i[2].strip()+"/db"
+	
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
-	os.system("mkdir -p $HOME/.conda/envs/P-DOR/db/all_db")
-	os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
+	#os.system("mkdir -p $HOME/.conda/envs/P-DOR/db/all_db")
+	os.system("mkdir -p %s") %abricate_db_path
+	
+	#os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
+	os.system("cat %s/*/*sequences >%sabricate_db_path/sequences")
+
 	os.system("makeblastdb -in $HOME/.conda/envs/P-DOR/db/all_db/sequences -title all_db -dbtype nucl -hash_index")
 	#os.system("abricate --setupdb| cut -f1 | grep -vE 'plasm|DATA' >abricate_DB")
 	#abrDB=open("abricate_DB","r")
