@@ -55,10 +55,6 @@ colnames(mtab)<-gsub("[)]","",colnames(mtab))
 palette2 <- c("0" = "grey95",
               "1" = "#960018")
 
-cluster_file<-read.csv("clusters_manual_threshold_17_snps.csv",sep='')
-cluster_file$cluster<-as.character(cluster_file$cluster)
-cluster_file$STRAIN_ID<-as.character(cluster_file$STRAIN_ID)
-
 add<-as.data.frame(tree$tip.label)
 colnames(add)<-"STRAIN_ID"
 
