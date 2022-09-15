@@ -297,7 +297,7 @@ dependencies:
   - zlib=1.2.11=h166bdaf_1014
   - zstd=1.5.2=ha95c52a_0
   - pip:
-    - argparse=1.1
+    - argparse==1.1
     - pandas==1.4.2
     - python-dateutil==2.8.2
     - pytz==2022.1
