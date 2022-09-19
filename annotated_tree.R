@@ -92,5 +92,5 @@ hm <- gheatmap(pp,mtab, offset = 2, width=0.2, font.size=5, colnames_position= "
 
 
                                                                   
-ggsave(hm, filename = "pp.svg",width = length(tree$tip.label)*0.7, height=length(tree$tip.label)*0.7 ,
+ggsave(hm, filename = "annotated_tree.svg",width = length(tree$tip.label)*0.7, height=length(tree$tip.label)*0.7 ,
        units = "cm",scale=1.5)
