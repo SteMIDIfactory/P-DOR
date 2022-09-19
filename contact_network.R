@@ -94,7 +94,7 @@ contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end=WARD_DATE_EXIT, 
 var_height<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$y$get_labels())
 var_width<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$x$get_labels())
 
-ggsave(plot = contact_network_plot, filename = "poster_contact_network_plot.svg",
+ggsave(plot = contact_network_plot, filename = "contact_network_plot.svg",
        width = var_width, height=var_height , units = "cm",limitsize = F,scale = 2)
 
 
