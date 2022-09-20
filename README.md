@@ -1,8 +1,6 @@
 [![DOI](https://zenodo.org/badge/455542613.svg)](https://zenodo.org/badge/latestdoi/455542613)
 # P-DOR - a Pipeline to Disentangling Outbreak Rapidly <img src='p-dor_logo.png' align="right" height="159" /> 
 
-## NOTE: The new P-DOR version will be available soon!!! 
-
 ## Introduction
 P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detection and characterization, carried on by integratic clinical metadata and contextualizing the genomes of interest within a well curated global genomic database. 
 

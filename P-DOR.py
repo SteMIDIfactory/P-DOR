@@ -17,48 +17,112 @@ from Skynet_SNPs_library_4_0 import card_resistance_genes
 
 ## FUNCTIONS
 
-
 def parse_args():
 
-	parser=argparse.ArgumentParser(description='''This is the P-DOR help ''',usage='%(prog)s [options]',
-		prog='P-DOR.py',
-		formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-		argument_default=argparse.SUPPRESS,
-		epilog="According to the legend, P-dor is the Son of K-mer, but it also likes SNPs")
+        parser=argparse.ArgumentParser(description='''This is the P-DOR help ''',usage='%(prog)s [options]',
+                prog='P-DOR.py',
+                formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                argument_default=argparse.SUPPRESS,
+                epilog="According to the legend, P-dor is the Son of K-mer, but it also likes SNPs")
 
-	requiredNamed = parser.add_argument_group('Input data')
-	requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=True)
-	requiredNamed.add_argument("-db", help="background sketch file",metavar="<dirname>",dest="db_sketch", required=True)
-	requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=True)
+        requiredNamed = parser.add_argument_group('Input data')
+        requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=True)
+        requiredNamed.add_argument("-db", help="background sketch file",metavar="<dirname>",dest="db_sketch", required=True)
+        requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=True)
+        
+        requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster: choices are an integer number or type 'infl' to calculate it by the inflection point of SNPs distribution ",required=True)
+        
+
+        optional = parser.add_argument_group('Additional arguments')
+        optional.add_argument("-meta", help="metadata file; see example file for formatting",default=None,required=False)
+        optional.add_argument("-gff", help="annotation file in gff format; if not specified (default) a dummy gff is generated",required=False,default="",nargs="?")
+        optional.add_argument("-bkg_folder", help="folder containing the genomes from which the background sketch was created",required=False,default="",nargs="?")
+        optional.add_argument("-call", help="Snps calling method",required=False, choices=['purple', 'mummer'],default="mummer")
+
+        optional.add_argument('-n', type=int,help='Maximum closest genomes from database',metavar="<int>",dest="near",default=20)
+        optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=10)
+
+        parser.add_argument('-v', '--version', action='version', version='P-DOR v0.1')
+
+        args = parser.parse_args()
+        snp_threshold=args.snp_threshold
+        
+        
+        if snp_threshold is not None and snp_threshold.isdigit():
+        	snp_threshold = int(snp_threshold)
+        
+
+        
+        return args
+
+args = parse_args()
 
 
-	optional = parser.add_argument_group('Additional arguments')
-	optional.add_argument("-meta", help="metadata file; see example file for formatting",default=None,required=False)
-	optional.add_argument("-gff", help="annotation file in gff format; if not specified (default) a dummy gff is generated",required=False,default="",nargs="?")
-	optional.add_argument("-bkg_folder", help="folder containing the genomes from which the background sketch was created; if not specified (default) nearest genomes are downloaded from the PATRIC-DB",required=False,default="",nargs="?")
-	optional.add_argument("-call", help="Snps calling method",required=False, choices=['purple', 'mummer'],default="mummer")
-	optional.add_argument("-snp_thr", type=int,help="Threshold number of SNPs to define an epidemic cluster",required=False,default=20)
-	optional.add_argument('-n', type=int,help='Maximum nearest genomes from database',metavar="<int>",dest="near",default=20)
-	optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=10)
+def logfile():
+	with open("PDOR.log","w") as p:
+		for arg, value in sorted(vars(args).items()):
+			p.write("%s\t%s\n" %(arg,value))
 
-	parser.add_argument('-v', '--version', action='version', version='P-DOR v0.1')
 
-	args = parser.parse_args()
-	return args
+
 
 
 def check_folder(folder):
 	folder_path=os.path.abspath(folder)
 	if os.path.isdir(folder):
 		sys.exit("\n\nERROR: the {} already exists!".format(folder_path))
-		#sys.stderr.write("%s %s\n" % (foo, bar))
-		#raise Exception("{} already exists".format(folder_path)) ## \nuse -f overwrite???
+		#sys.stderr.write("%s %s\n" % (foo, bar)		#raise Exception("{} already exists".format(folder_path)) ## \nuse -f overwrite???
+
+
+
+
+
+def check_res_vir(threads):
+	print ("checking for resistance and virulence genes...")
+	
+	os.system("conda env list >path_pdor")
+	path_inF=open("path_pdor","r")
+	for i in path_inF.readlines():
+		i=i.strip().split()
+
+		try:
+    			name=i[1].strip()
+	        
+		except IndexError:
+
+    			variants = 'null'
+
+		if name=="*":
+		
+			abricate_db_path=i[2].strip()+"/db/all_db"
+			abs_path=i[2].strip()+"/db"
+		
+			cmd="mkdir -p %s" %abricate_db_path
+			os.system(cmd)
+			cmd="cat %s/*/*sequences >%s/all_db/sequences" %(abs_path,abs_path)
+			os.system(cmd)
+			cmd="makeblastdb -in %s/sequences -title all_db -dbtype nucl -hash_index" %abricate_db_path
+			os.system(cmd)
+
+	#os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
+	#os.system("mkdir -p $HOME/.conda/envs/P-DOR/db/all_db")
+	#os.system("mkdir -p %s") %abricate_db_path
+	#os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
+	#os.system("cat %s/*/*sequences >%sabricate_db_path/sequences")
+	#os.system("makeblastdb -in $HOME/.conda/envs/P-DOR/db/all_db/sequences -title all_db -dbtype nucl -hash_index")
+	#os.system("abricate --setupdb| cut -f1 | grep -vE 'plasm|DATA' >abricate_DB")
+		
+
+			os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report'" %(threads))
+			os.system("cat *report >summary_resistance_virulence")
+			os.system("rm *report")
+			os.system("mv summary_resistance_virulence ../")
 
 
 def Mummer_snp_call(threads,ref):
 	print("Aligning genomes with Mummer4")
-	os.chdir("Align")
-	os.system('ls | parallel -j %i "nucmer -p {} %s {}; show-snps -H -C -I -r -T {}.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
+	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
+	os.system('ls *fna | parallel -j %i "nucmer -p {} %s {}; show-snps -H -C -I -r -T {}.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
 	os.chdir("..")
 	os.system("ls Align/*.snp >SNP_genomes.list")
 	core_snps_list_path("SNP_genomes.list", 2, "SNP_positions")
@@ -115,6 +179,11 @@ timefunct=datetime.datetime.now()
 Results_folder_name="Results_%s-%s-%s_%s-%s" %(str(timefunct.year),str(timefunct.month),str(timefunct.day),str(timefunct.hour),
 	str(timefunct.minute))
 os.mkdir(Results_folder_name)
+logfile()
+path_dir = os.path.abspath( os.path.dirname( Results_folder_name ) ) 
+
+os.system("mv PDOR.log %s" %(Results_folder_name))
+
 
 start_time = time.time()
 
@@ -144,6 +213,10 @@ NEAREST=[i.split("/")[-1] for i in NEAREST]
 
 print ("Sketches completed...")
 
+
+
+
+
 os.chdir(Results_folder_name)
 
 with open("query_genome_list.txt","w") as q:
@@ -154,7 +227,9 @@ with open("backgroud_genome_list.txt","w") as q:
 	for i in NEAREST:
 		q.write("%s\n" %(i))
 
+
 os.mkdir("Background")
+
 
 if args.bkg_folder:
 	print ("Retrieving nearest genomes from the %s folder" %args.bkg_folder)
@@ -178,11 +253,17 @@ else:
 os.mkdir("Align")
 
 
+
+
 for i in glob.glob("Background/*"):
 	name=i.strip().split("/")[-1]
 	os.system("cp %s Align/DB_%s" %(i,name))
 
 os.system("cp %s/*.fna Align" %(ABS_query_folder))
+
+
+check_res_vir(threads)
+
 
 
 
@@ -192,26 +273,53 @@ elif args.call == 'purple':
 	Purple_snp_call(ref,threads,Results_folder_name)
 
 
+
+
 print("Performing phylogeny reconstruction")
 
-cmd="raxmlHPC-PTHREADS -f a -x 12345 -p 12345 -# 100 -m ASC_GTRGAMMA -s SNP_alignment.core.fasta -n SNP_Phylo.nwk -T %i --no-bfgs --asc-corr=lewis" %(threads)
+cmd="raxmlHPC-PTHREADS -f a -x 12345 -p 12345 -# 100 -m ASC_GTRGAMMA -s SNP_alignment.core.fasta -n coreSNPs_Phylo.nwk -T %i --no-bfgs --asc-corr=lewis" %(threads)
 os.system(cmd)
 
 
 
 
-os.system("Rscript ../Snpbreaker.R SNP_alignment.core.fasta %i" %(args.snp_thr))
+os.system("Rscript ../Snpbreaker.R SNP_alignment.core.fasta %s" %(args.snp_threshold))
+os.system("Rscript ../annotated_tree.R RAxML_bipartitionsBranchLabels.coreSNPs_Phylo.nwk")
+
+
+
 if args.meta is not None:
-	os.system("Rscript ../Timeline.R ../%s" %(args.meta))
-	os.system("Rscript ../Tubeplot.R ../%s" %(args.meta))
+	
+	os.system("Rscript ../contact_network.R ../%s" %(args.meta))
+
+
+
+
 
 os.chdir("..")
+
 
 time=float(time.time() - start_time)
 hours=int(time/3600)
 minutes=((time/3600)-hours)*60
 
-print("\n\n\n\n\n\n\n\n\n")
-print("####################\n")
+#outF="Results_%s" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+#os.makedirs(outF)
+
+"""
+os.makedirs("phylogeny outbreak_detection")
+os.system("mv RAxML_* phylogeny/")
+os.system("mv annotated_tree.svg phylogeny/"
+
+os.system("mv *csv outbreak_detection/")
+os.system("mv *svg outbreak_detection/")
+"""
+
+print ("\n\n\n\n\n\n\n\n\n")
+print ("####################\n")
 print ("Analysis completed in %i hours and %f minutes" %(hours,minutes))
-print("####################\n")
+print ("####################\n")
+
+
+
+

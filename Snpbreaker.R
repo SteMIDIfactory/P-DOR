@@ -1,69 +1,114 @@
 rm(list=ls())
 library(ape)
-library(openxlsx)
 library(reshape2)
 library(ggplot2)
-library(pheatmap)
-library(RColorBrewer)
-library(viridis)
 library(igraph)
-
+library(pheatmap)
+library(svglite)
+library(RColorBrewer)
 
 args=commandArgs(trailingOnly = TRUE)
-snp_alignment <- args[1]
-snp_threshold <- args[2]
 
-#file_folder <- list.files()
-#file_folder<-file_folder[grep("Results",file_folder)]
+logfile<-read.delim("PDOR.log",header = F,sep='\t')
+
+
+
+snp_alignment <- args[1]
+snp_threshold <- logfile[which(logfile$V1=="snp_threshold"),"V2"]
+
 ###
 seq<-read.dna(snp_alignment, format="fasta")
 dist_matrix<-as.matrix(dist.dna(seq, "N"))
+
+# seq<-read.dna("SNP_alignment.core.fasta", format="fasta")
+# dist_matrix<-as.matrix(dist.dna(seq, "N"))
 ###
 query_genomes<-as.vector(grep("DB_",rownames(dist_matrix),value = TRUE, invert = TRUE))
-# background_genomes<-as.vector(grep("DB_",rownames(dist_matrix),value = TRUE))
-ref_genome<-as.vector(grep("REF_",rownames(dist_matrix),value = TRUE))
-query_genomes<-query_genomes[-which(query_genomes %in% ref_genome)]
+#ref_genome<-as.vector(grep("REF_",rownames(dist_matrix),value = TRUE))
+#query_genomes<-query_genomes[-which(query_genomes %in% ref_genome)]
 query_genomes<-dist_matrix[query_genomes,query_genomes] #relativa ai genomi di outbreak di studio
-# background<-dist_matrix[background_genomes,background_genomes] #relativa ai genomi di outbreak di studio
-
-
-svg(filename = "SNPs_frequency.svg",
-    width = 10, height = 10, pointsize = 8)
-snp_plot<-hist(dist_matrix,breaks=200)
-snp_plot<-hist(dist_matrix,breaks=200, xlim = range(0, max(dist_matrix)+max(dist_matrix)*0.2),
-               ylim=range(0, max(snp_plot$counts)+max(snp_plot$breaks)*0.05),col = c("darkgreen"),
-               xlab = "pairwise SNPs distance")
-abline(v = args[2], col="red", lwd=3, lty=2)
-dev.off()
-
-### INFLECTION POINT
-d1 <- density(dist_matrix)
-DeltaY = diff(d1$y)
-Turns = which(DeltaY[-1] * DeltaY[-length(DeltaY)] < 0) + 1
-
-svg(filename = "inflection_points.svg",
-    width = 10, height = 10, pointsize = 8)
-plot(d1, xlab="", ylab="", main="")
-points(d1$x[Turns], d1$y[Turns], pch=16, col="red")
-dev.off()
-
-
+###
 dist_matrix_query_vs_all<-dist_matrix[rownames(query_genomes),]
 
-###
 svg(filename = "SNP_heatmap_query_vs_all.svg",
-   width = 10, height = 10, pointsize = 8)
+    width = 10, height = 10, pointsize = 8)
 query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100))
 dev.off()
 
 ###
-mm<-melt(dist_matrix)
-mm<-mm[which(mm$value<snp_threshold & mm$Var1!=mm$Var2),]
-links<-mm[,c(1,2)]
 
-
-svg(filename = "SNP_clusters.svg",
-    width = 10, height = 10, pointsize = 8)
-gr<-graph_from_data_frame(links, directed = TRUE)
-plot(gr)
-dev.off()
+if (snp_threshold !="infl"){
+  snp_threshold<-as.integer(as.character(snp_threshold))
+  
+  svg(filename = sprintf("SNP_frequency_manual_threshold_%s_snps.svg",snp_threshold),
+      width = 10, height = 10, pointsize = 8)
+  snp_plot<-hist(dist_matrix,breaks=2000)
+  snp_plot<-hist(dist_matrix,breaks=2000, xlim = range(0, max(dist_matrix)+max(dist_matrix)*0.2),
+                 ylim=range(0, max(snp_plot$counts)+max(snp_plot$breaks)*0.05),col = c("darkgreen"),
+                 xlab = "pairwise SNPs distance")
+  abline(v = snp_threshold, col="red", lwd=3, lty=2)
+  dev.off()
+  
+  
+  
+  mm<-melt(dist_matrix)
+  mm<-mm[which(mm$value<snp_threshold & mm$Var1!=mm$Var2),]
+  links<-mm[,c(1,2)]
+  
+  svg(filename = sprintf("SNP_clusters_manual_threshold_%s_snps.svg",snp_threshold),
+      width = 10, height = 10, pointsize = 8)
+  gr<-graph_from_data_frame(links, directed = FALSE)
+  plot(gr)
+  dev.off()
+  out_cluster<-as.data.frame(components(gr)$membership)
+  colnames(out_cluster)<-"cluster"
+  out_cluster$cluster<-paste("C",out_cluster$cluster,sep="")
+  out_cluster$ID<-rownames(out_cluster)
+  rownames(out_cluster)<-1:nrow(out_cluster)
+  colnames(out_cluster)[2]<-"STRAIN_ID"
+  write.table(out_cluster,sprintf("clusters_manual_threshold_%s_snps.csv",snp_threshold),row.names = F,quote = F,sep='\t')
+  
+} else {
+  
+  
+  
+  
+  ### calculate inflection point
+  d1 <- density(dist_matrix)
+  DeltaY = diff(d1$y)
+  Turns = which(DeltaY[-1] * DeltaY[-length(DeltaY)] < 0)-1
+  min_flex<-Turns[1]
+  
+  
+  svg(filename = sprintf("SNP_frequency_calculated_threshold_%s_snps.svg",min_flex),
+      width = 10, height = 10, pointsize = 8)
+  snp_plot<-hist(dist_matrix,breaks=200)
+  snp_plot<-hist(dist_matrix,breaks=200, xlim = range(0, max(dist_matrix)+max(dist_matrix)*0.2),
+                 ylim=range(0, max(snp_plot$counts)+max(snp_plot$breaks)*0.05),col = c("darkgreen"),
+                 xlab = "pairwise SNPs distance")
+  abline(v = min_flex, col="blue", lwd=3, lty=2)
+  dev.off()
+  
+  
+  
+  
+  mm_man_thresh<-melt(dist_matrix)
+  mm_man_thresh<-mm_man_thresh[which(mm_man_thresh$value<min_flex & mm_man_thresh$Var1!=mm_man_thresh$Var2),]
+  links<-mm_man_thresh[,c(1,2)]
+  
+  
+  svg(filename = sprintf("SNP_clusters_calculated_threshold_%s_snps.svg",min_flex),
+      width = 10, height = 10, pointsize = 8)
+  gr<-graph_from_data_frame(links, directed = FALSE)
+  out_cluster<-as.data.frame(components(gr)$membership)
+  colnames(out_cluster)<-"cluster"
+  out_cluster$cluster<-paste("C",out_cluster$cluster,sep="")
+  out_cluster$ID<-rownames(out_cluster)
+  rownames(out_cluster)<-1:nrow(out_cluster)
+  colnames(out_cluster)[2]<-"STRAIN_ID"
+  write.table(out_cluster,sprintf("clusters_calculated_threshold_%s_snps.csv",min_flex),row.names = F,quote = F,sep='\t')
+  plot(gr)
+  dev.off()
+  
+  
+} 

@@ -1,0 +1,3 @@
+PATIENT_ID,STRAIN_ID,WARD_DATE_ENTRY,WARD_DATE_EXIT,WARD,ISOLATION_DATE,MATERIAL
+patient_1,strain_1,YYYY-mm-d,YYYY-mm-d,surgery,YYYY-mm-d,rectal_swab
+patient_2,strain_2,YYYY-mm-d,YYYY-mm-d,ICU,YYYY-mm-d,blood
