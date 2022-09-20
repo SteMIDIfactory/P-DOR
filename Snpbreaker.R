@@ -7,7 +7,6 @@ library(pheatmap)
 library(svglite)
 library(RColorBrewer)
 
-#setwd("/home/ghepard/PDOR/2_SIMULATION/")
 args=commandArgs(trailingOnly = TRUE)
 
 logfile<-read.delim("PDOR.log",header = F,sep='\t')
@@ -25,8 +24,8 @@ dist_matrix<-as.matrix(dist.dna(seq, "N"))
 # dist_matrix<-as.matrix(dist.dna(seq, "N"))
 ###
 query_genomes<-as.vector(grep("DB_",rownames(dist_matrix),value = TRUE, invert = TRUE))
-ref_genome<-as.vector(grep("REF_",rownames(dist_matrix),value = TRUE))
-query_genomes<-query_genomes[-which(query_genomes %in% ref_genome)]
+#ref_genome<-as.vector(grep("REF_",rownames(dist_matrix),value = TRUE))
+#query_genomes<-query_genomes[-which(query_genomes %in% ref_genome)]
 query_genomes<-dist_matrix[query_genomes,query_genomes] #relativa ai genomi di outbreak di studio
 ###
 dist_matrix_query_vs_all<-dist_matrix[rownames(query_genomes),]
