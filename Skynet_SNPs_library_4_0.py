@@ -203,7 +203,7 @@ def core_snps_2_fasta(list_path,core_path,reference_fasta,output):
 		list_pos_ref[int(i)-1].strip()
 		s+=list_pos_ref[int(i)-1]
 
-	outfasta.write(">REF_%s\n" %(reference.strip().replace(".snp","").replace(".fasta","").replace(".fna","")))
+	outfasta.write(">%s\n" %(reference.strip().replace(".snp","").replace(".fasta","").replace(".fna","")))
 	outfasta.write("%s\n" %(s.strip().upper()))
 
 # Per ogni file, carica basi organismo e stampa il fasta
