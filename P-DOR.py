@@ -79,7 +79,10 @@ def check_folder(folder):
 
 def check_res_vir(threads):
 	print ("checking for resistance and virulence genes...")
-	
+	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
+	path_res=path_dir+"/"+Results_folder_name+"/"+"Align"
+	cmd=("cp %s %s") %(os.path.abspath(ref),path_res)
+	os.system(cmd)
 	os.system("conda env list >path_pdor")
 	path_inF=open("path_pdor","r")
 	for i in path_inF.readlines():
@@ -96,27 +99,22 @@ def check_res_vir(threads):
 		
 			abricate_db_path=i[2].strip()+"/db/all_db"
 			abs_path=i[2].strip()+"/db"
-		
+			
 			cmd="mkdir -p %s" %abricate_db_path
 			os.system(cmd)
-			cmd="cat %s/*/*sequences >%s/all_db/sequences" %(abs_path,abs_path)
+			cmd="cat %s/*/*sequences | perl -pe 's/[[:^ascii:]]//g' >%s/all_db/sequences" %(abs_path,abs_path)
 			os.system(cmd)
 			cmd="makeblastdb -in %s/sequences -title all_db -dbtype nucl -hash_index" %abricate_db_path
 			os.system(cmd)
 
-	#os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
-	#os.system("mkdir -p $HOME/.conda/envs/P-DOR/db/all_db")
-	#os.system("mkdir -p %s") %abricate_db_path
-	#os.system("cat $HOME/.conda/envs/P-DOR/db/*/*sequences >$HOME/.conda/envs/P-DOR/db/all_db/sequences")
-	#os.system("cat %s/*/*sequences >%sabricate_db_path/sequences")
-	#os.system("makeblastdb -in $HOME/.conda/envs/P-DOR/db/all_db/sequences -title all_db -dbtype nucl -hash_index")
-	#os.system("abricate --setupdb| cut -f1 | grep -vE 'plasm|DATA' >abricate_DB")
-		
-
 			os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report'" %(threads))
 			os.system("cat *report >summary_resistance_virulence")
 			os.system("rm *report")
+			rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
+			os.system(rm_ref)
 			os.system("mv summary_resistance_virulence ../")
+			
+
 
 
 def Mummer_snp_call(threads,ref):
