@@ -17,7 +17,7 @@ cluster_file$STRAIN_ID<-as.character(cluster_file$STRAIN_ID)
 
 logfile<-read.delim("PDOR.log",header = F,sep='\t')
 ref_name <- logfile[which(logfile$V1=="ref"),"V2"]
-ref_name
+
 #tree <- read.tree("RAxML_bipartitionsBranchLabels.coreSNPs_Phylo.nwk")
 tree <- read.tree(snp_phylotree)
 
@@ -33,6 +33,7 @@ rownames(rr)<-rr$STRAIN_ID
 rr$STRAIN_ID<-NULL
 
 
+
 report<-read.delim("summary_resistance_virulence",sep='\t')
 
 report$X.COVERAGE<-as.character(report$X.COVERAGE)
@@ -41,16 +42,22 @@ new_ref_name<-paste(unique(report[which(report$X.FILE==ref_name),"SEQUENCE"]),".
 
 report$X.FILE<-gsub(ref_name,new_ref_name,report$X.FILE)
 
+
 report<-report[grep("fna|fasta",report$X.FILE),]
 
 report$X.FILE<-gsub(".fna","",report$X.FILE)
 report$X.FILE<-gsub(".fasta","",report$X.FILE)
 
 report_res<-report[which(report$X.COVERAGE=="100.00" & report$X.IDENTITY=="100.00"),]
+
 report_res<-report_res[grep("card|resfinder|ncbi|argannot",report_res$DATABASE),]
 
-report_vir<-report[which(as.numeric(report$X.COVERAGE)>90 & as.numeric(report$X.IDENTITY)>90),]
+
+report_vir<-report[which(as.numeric(report$X.COVERAGE)>80 & as.numeric(report$X.IDENTITY)>80),]
+
 report_vir<-report_vir[grep("ecoli_vf|vfdb",report_vir$DATABASE),]
+
+
 
 report_summary<-rbind(report_res,report_vir)
 tab<-table(report_summary$X.FILE,report_summary$GENE)
@@ -61,6 +68,7 @@ mtab[mtab>1]<-1
 colnames(mtab)<-gsub("Bla","",colnames(mtab))
 colnames(mtab)<-gsub("[(]","",colnames(mtab))
 colnames(mtab)<-gsub("[)]","",colnames(mtab))
+
 
 mtab1<-matrix(as.character(mtab),ncol = ncol(mtab))
 rownames(mtab1)<-rownames(mtab)
@@ -104,6 +112,5 @@ hm <- gheatmap(pp,mtab1, offset = 2, width=0.2, font.size=5, colnames_position= 
 
 
                                                                    
-ggsave(hm, filename = "annotated_tree.svg",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*2.5 ,
+ggsave(hm, filename = "annotated_tree.svg",width = length(tree$tip.label)*2.5, height=length(tree$tip.label)*2.5 ,
         units = "cm",scale=2,limitsize = F)
-
