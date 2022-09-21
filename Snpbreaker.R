@@ -1,114 +1,115 @@
 rm(list=ls())
-library(ape)
+library(svglite)
+library(pheatmap)
+library(RColorBrewer)
+library(ggtree)
+library(ggnewscale)
+library(ggtreeExtra)
 library(reshape2)
 library(ggplot2)
-library(igraph)
-library(pheatmap)
-library(svglite)
-library(RColorBrewer)
-
 args=commandArgs(trailingOnly = TRUE)
+snp_phylotree<-args[1]
+
+cluster_file<-read.csv(list.files(pattern = "csv"),sep='')
+cluster_file$cluster<-as.character(cluster_file$cluster)
+cluster_file$STRAIN_ID<-as.character(cluster_file$STRAIN_ID)
 
 logfile<-read.delim("PDOR.log",header = F,sep='\t')
+ref_name <- logfile[which(logfile$V1=="ref"),"V2"]
+
+#tree <- read.tree("RAxML_bipartitionsBranchLabels.coreSNPs_Phylo.nwk")
+tree <- read.tree(snp_phylotree)
+
+add<-as.data.frame(tree$tip.label)
+colnames(add)<-"STRAIN_ID"
+
+mm<-merge(cluster_file,add,by="STRAIN_ID",all = T)
+
+mm<-mm[which(mm$STRAIN_ID %in% tree$tip.label),]
+
+rr<-unique(rbind(mm,cluster_file))
+rownames(rr)<-rr$STRAIN_ID
+rr$STRAIN_ID<-NULL
 
 
 
-snp_alignment <- args[1]
-snp_threshold <- logfile[which(logfile$V1=="snp_threshold"),"V2"]
+report<-read.delim("summary_resistance_virulence",sep='\t')
 
-###
-seq<-read.dna(snp_alignment, format="fasta")
-dist_matrix<-as.matrix(dist.dna(seq, "N"))
+report$X.COVERAGE<-as.character(report$X.COVERAGE)
+report$X.IDENTITY<-as.character(report$X.IDENTITY)
+new_ref_name<-paste(unique(report[which(report$X.FILE==ref_name),"SEQUENCE"]),".fna",sep="")
 
-# seq<-read.dna("SNP_alignment.core.fasta", format="fasta")
-# dist_matrix<-as.matrix(dist.dna(seq, "N"))
-###
-query_genomes<-as.vector(grep("DB_",rownames(dist_matrix),value = TRUE, invert = TRUE))
-#ref_genome<-as.vector(grep("REF_",rownames(dist_matrix),value = TRUE))
-#query_genomes<-query_genomes[-which(query_genomes %in% ref_genome)]
-query_genomes<-dist_matrix[query_genomes,query_genomes] #relativa ai genomi di outbreak di studio
-###
-dist_matrix_query_vs_all<-dist_matrix[rownames(query_genomes),]
+report$X.FILE<-gsub(ref_name,new_ref_name,report$X.FILE)
 
-svg(filename = "SNP_heatmap_query_vs_all.svg",
-    width = 10, height = 10, pointsize = 8)
-query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100))
-dev.off()
 
-###
+report<-report[grep("fna|fasta",report$X.FILE),]
 
-if (snp_threshold !="infl"){
-  snp_threshold<-as.integer(as.character(snp_threshold))
-  
-  svg(filename = sprintf("SNP_frequency_manual_threshold_%s_snps.svg",snp_threshold),
-      width = 10, height = 10, pointsize = 8)
-  snp_plot<-hist(dist_matrix,breaks=2000)
-  snp_plot<-hist(dist_matrix,breaks=2000, xlim = range(0, max(dist_matrix)+max(dist_matrix)*0.2),
-                 ylim=range(0, max(snp_plot$counts)+max(snp_plot$breaks)*0.05),col = c("darkgreen"),
-                 xlab = "pairwise SNPs distance")
-  abline(v = snp_threshold, col="red", lwd=3, lty=2)
-  dev.off()
-  
-  
-  
-  mm<-melt(dist_matrix)
-  mm<-mm[which(mm$value<snp_threshold & mm$Var1!=mm$Var2),]
-  links<-mm[,c(1,2)]
-  
-  svg(filename = sprintf("SNP_clusters_manual_threshold_%s_snps.svg",snp_threshold),
-      width = 10, height = 10, pointsize = 8)
-  gr<-graph_from_data_frame(links, directed = FALSE)
-  plot(gr)
-  dev.off()
-  out_cluster<-as.data.frame(components(gr)$membership)
-  colnames(out_cluster)<-"cluster"
-  out_cluster$cluster<-paste("C",out_cluster$cluster,sep="")
-  out_cluster$ID<-rownames(out_cluster)
-  rownames(out_cluster)<-1:nrow(out_cluster)
-  colnames(out_cluster)[2]<-"STRAIN_ID"
-  write.table(out_cluster,sprintf("clusters_manual_threshold_%s_snps.csv",snp_threshold),row.names = F,quote = F,sep='\t')
-  
-} else {
-  
-  
-  
-  
-  ### calculate inflection point
-  d1 <- density(dist_matrix)
-  DeltaY = diff(d1$y)
-  Turns = which(DeltaY[-1] * DeltaY[-length(DeltaY)] < 0)-1
-  min_flex<-Turns[1]
-  
-  
-  svg(filename = sprintf("SNP_frequency_calculated_threshold_%s_snps.svg",min_flex),
-      width = 10, height = 10, pointsize = 8)
-  snp_plot<-hist(dist_matrix,breaks=200)
-  snp_plot<-hist(dist_matrix,breaks=200, xlim = range(0, max(dist_matrix)+max(dist_matrix)*0.2),
-                 ylim=range(0, max(snp_plot$counts)+max(snp_plot$breaks)*0.05),col = c("darkgreen"),
-                 xlab = "pairwise SNPs distance")
-  abline(v = min_flex, col="blue", lwd=3, lty=2)
-  dev.off()
-  
-  
-  
-  
-  mm_man_thresh<-melt(dist_matrix)
-  mm_man_thresh<-mm_man_thresh[which(mm_man_thresh$value<min_flex & mm_man_thresh$Var1!=mm_man_thresh$Var2),]
-  links<-mm_man_thresh[,c(1,2)]
-  
-  
-  svg(filename = sprintf("SNP_clusters_calculated_threshold_%s_snps.svg",min_flex),
-      width = 10, height = 10, pointsize = 8)
-  gr<-graph_from_data_frame(links, directed = FALSE)
-  out_cluster<-as.data.frame(components(gr)$membership)
-  colnames(out_cluster)<-"cluster"
-  out_cluster$cluster<-paste("C",out_cluster$cluster,sep="")
-  out_cluster$ID<-rownames(out_cluster)
-  rownames(out_cluster)<-1:nrow(out_cluster)
-  colnames(out_cluster)[2]<-"STRAIN_ID"
-  write.table(out_cluster,sprintf("clusters_calculated_threshold_%s_snps.csv",min_flex),row.names = F,quote = F,sep='\t')
-  plot(gr)
-  dev.off()
-  
-  
-} 
+report$X.FILE<-gsub(".fna","",report$X.FILE)
+report$X.FILE<-gsub(".fasta","",report$X.FILE)
+
+report_res<-report[which(report$X.COVERAGE=="100.00" & report$X.IDENTITY=="100.00"),]
+
+report_res<-report_res[grep("card|resfinder|ncbi|argannot",report_res$DATABASE),]
+
+
+report_vir<-report[which(as.numeric(report$X.COVERAGE)>80 & as.numeric(report$X.IDENTITY)>80),]
+
+report_vir<-report_vir[grep("ecoli_vf|vfdb",report_vir$DATABASE),]
+
+
+
+report_summary<-rbind(report_res,report_vir)
+tab<-table(report_summary$X.FILE,report_summary$GENE)
+# tab[tab==0]<-"absence"
+# tab[tab>=1]<-"presence"
+mtab<-as.matrix(tab)
+mtab[mtab>1]<-1
+colnames(mtab)<-gsub("Bla","",colnames(mtab))
+colnames(mtab)<-gsub("[(]","",colnames(mtab))
+colnames(mtab)<-gsub("[)]","",colnames(mtab))
+
+
+mtab1<-matrix(as.character(mtab),ncol = ncol(mtab))
+rownames(mtab1)<-rownames(mtab)
+colnames(mtab1)<-colnames(mtab)
+
+palette2 <- c("0" = "grey95",
+              "1" = "#960018")
+
+
+add<-as.data.frame(tree$tip.label)
+colnames(add)<-"STRAIN_ID"
+
+mm<-merge(cluster_file,add,by="STRAIN_ID",all = T)
+mm<-mm[which(mm$STRAIN_ID %in% tree$tip.label),]
+
+rr<-unique(rbind(mm,cluster_file))
+
+p<-ggtree(tree,branch.length = "none",layout = "rectangular")
+rr$cluster<-ifelse(is.na(rr$cluster),"Other",rr$cluster)
+
+rr<-rr[order(rr$cluster),]
+
+cols<-brewer.pal(n = nrow(table(rr$cluster)), name = "Paired")
+color_vec <- cols
+names(color_vec) <- unique(rr$cluster)
+color_vec[names(color_vec) == "Other"] <- "darkgrey"
+
+
+
+pp <- p %<+% rr + geom_tiplab(aes(color=cluster,fontface=2),size=5,show.legend = FALSE)+
+  geom_tippoint(aes(color=cluster),size=5,alpha = 0)+#scale_color_discrete(breaks = levels(factor(rr$cluster)))+
+  theme_tree2()+theme(legend.text=element_text(size=20),legend.title = element_text(size=20))+
+  guides(colour = guide_legend("Cluster", override.aes = list(size = 20, alpha = 1)))+
+  scale_color_manual(values = color_vec)#+geom_fruit(geom=geom_point,mapping=aes(color=cluster),size=3)
+
+
+hm <- gheatmap(pp,mtab1, offset = 2, width=0.2, font.size=5, colnames_position= "top",
+         colnames_angle = 90, colnames_offset_y = -0.2, hjust = 0) +
+         scale_fill_manual(values = c("0" = "grey95","1" = "#960018"))+
+         scale_y_continuous(limits=c(-1, NA))+ guides(fill="none")
+
+
+                                                                   
+ggsave(hm, filename = "annotated_tree.svg",width = length(tree$tip.label)*2.5, height=length(tree$tip.label)*2.5 ,
+        units = "cm",scale=2,limitsize = F)
