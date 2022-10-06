@@ -77,6 +77,7 @@ def check_folder(folder):
 
 
 def check_res_vir(threads):
+	
 	print ("checking for resistance and virulence genes...")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
 	path_res=path_dir+"/"+Results_folder_name+"/"+"Align"
@@ -86,16 +87,12 @@ def check_res_vir(threads):
 	path_inF=open("path_pdor","r")
 	for i in path_inF.readlines():
 		i=i.strip().split()
-
-		try:
-    			name=i[1].strip()
-	        
-		except IndexError:
-
-    			variants = 'null'
-
-		if name=="*":
 		
+		if not i:
+			pass
+		
+		elif i[0].strip=="P-DOR":
+			
 			abricate_db_path=i[2].strip()+"/db/all_db"
 			abs_path=i[2].strip()+"/db"
 			
@@ -112,7 +109,22 @@ def check_res_vir(threads):
 			rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
 			os.system(rm_ref)
 			os.system("mv summary_resistance_virulence ../")
+
 			
+		
+"""		
+		try:
+    			name=i[1].strip()
+	        
+		except IndexError:
+
+    			variants = 'null'
+
+			
+			
+		if name=="*":
+		
+"""
 
 
 
