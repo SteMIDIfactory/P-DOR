@@ -17,6 +17,8 @@ hospitalization<-read.delim(hospitalization_file,sep='\t')
 
 
 ###########################################################################
+hospitalization$STRAIN_ID<-gsub(".fna","",hospitalization$STRAIN_ID)
+hospitalization$STRAIN_ID<-gsub(".fasta","",hospitalization$STRAIN_ID)
 hospitalization$PATIENT_ID<-as.character(hospitalization$PATIENT_ID)
 hospitalization$WARD<-as.character(hospitalization$WARD)
 hospitalization$WARD_DATE_ENTRY<-as.POSIXct(as.character(hospitalization$WARD_DATE_ENTRY))
