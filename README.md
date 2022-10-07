@@ -71,6 +71,14 @@ Additional arguments:
   -t <int>              number of threads (default: 10)
 
 ```
+### Test run
+
+Test whether the pipeline generates all the expected outputs on your system, run the following command. 
+
+```
+python P-DOR.py -q data/test_query -db data/sketches.msh -ref NJST258.fna -snp_thr infl -n 2 -bkg_folder data/test_DB/ -meta data/sample_metadata_table.txt
+```
+
 ### Pre-sketched databases
 Pre-sketched ESKAPE genomes are available at:
 ```
