@@ -9,6 +9,8 @@ import time
 import datetime
 import glob
 import os
+#from os.path import join
+#from glob import glob
 from Skynet_SNPs_library_4_0 import core_snps_2_fasta
 from Skynet_SNPs_library_4_0 import core_snps_two_files
 from Skynet_SNPs_library_4_0 import core_snps_list_path
@@ -40,20 +42,27 @@ def parse_args():
         optional.add_argument("-call", help="Snps calling method",required=False, choices=['purple', 'mummer'],default="mummer")
 
         optional.add_argument('-n', type=int,help='Maximum closest genomes from database',metavar="<int>",dest="near",default=20)
-        optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=10)
+        optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=2)
 
         parser.add_argument('-v', '--version', action='version', version='P-DOR v0.1')
 
         args = parser.parse_args()
         snp_threshold=args.snp_threshold
-        
-        
         if snp_threshold is not None and snp_threshold.isdigit():
-        	snp_threshold = int(snp_threshold)
-        
+              snp_threshold = int(snp_threshold)
 
-        
+   
+   
+### CHECK N 1
+   
+        elif snp_threshold!="infl":             
+
+              sys.exit('\nERROR: to set the inflation point the following argument is required: -snp_thr infl\n')
+
+
         return args
+
+
 
 args = parse_args()
 
@@ -66,7 +75,7 @@ def logfile():
 
 
 
-
+"""
 def check_folder(folder):
 	folder_path=os.path.abspath(folder)
 	if os.path.isdir(folder):
@@ -74,10 +83,11 @@ def check_folder(folder):
 		#sys.stderr.write("%s %s\n" % (foo, bar)		#raise Exception("{} already exists".format(folder_path)) ## \nuse -f overwrite???
 
 
+"""
+
 
 
 def check_res_vir(threads):
-	
 	print ("checking for resistance and virulence genes...")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
 	path_res=path_dir+"/"+Results_folder_name+"/"+"Align"
@@ -88,76 +98,48 @@ def check_res_vir(threads):
 	for i in path_inF.readlines():
 		i=i.strip().split()
 		
-		if not i:
-			pass
-		
-		elif i[0].strip=="P-DOR":
-			
-			abricate_db_path=i[2].strip()+"/db/all_db"
-			abs_path=i[2].strip()+"/db"
-			
-			cmd="mkdir -p %s" %abricate_db_path
-			os.system(cmd)
-			cmd="cat %s/*/*sequences | perl -pe 's/[[:^ascii:]]//g' >%s/all_db/sequences" %(abs_path,abs_path)
-			os.system(cmd)
-			cmd="makeblastdb -in %s/sequences -title all_db -dbtype nucl -hash_index" %abricate_db_path
-			os.system(cmd)
-
-			os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report'" %(threads))
-			os.system("cat *report >summary_resistance_virulence")
-			os.system("rm *report")
-			rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
-			os.system(rm_ref)
-			os.system("mv summary_resistance_virulence ../")
-
-			
-		
-"""		
 		try:
-    			name=i[1].strip()
-	        
+			if i[1].strip()=="*":
+				abricate_db_path=i[2].strip()+"/db/all_db"
+				abs_path=i[2].strip()+"/db"
+				
+				cmd="mkdir -p %s" %abricate_db_path
+				os.system(cmd)
+				cmd="cat %s/*/*sequences | perl -pe 's/[[:^ascii:]]//g' >%s/all_db/sequences" %(abs_path,abs_path)
+				os.system(cmd)
+				cmd="makeblastdb -in %s/sequences -title all_db -dbtype nucl -hash_index" %abricate_db_path
+				os.system(cmd)
+
+				os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report'" %(threads))
+				os.system("cat *report >summary_resistance_virulence")
+				os.system("rm *report")
+				rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
+				os.system(rm_ref)
+				os.system("mv summary_resistance_virulence ../")
+
+
 		except IndexError:
-
-    			variants = 'null'
-
-			
-			
-		if name=="*":
 		
-"""
+			pass
 
 
+
+				
 
 def Mummer_snp_call(threads,ref):
-	print("Aligning genomes with Mummer4")
+	#os.rename(".fasta",".fna").replace(".fa","fna")
+	print("Aligning genomes with Mummer4...\n")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
 	os.system('ls *fna | parallel -j %i "nucmer -p {} %s {}; show-snps -H -C -I -r -T {}.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
 	os.chdir("..")
 	os.system("ls Align/*.snp >SNP_genomes.list")
 	core_snps_list_path("SNP_genomes.list", 2, "SNP_positions")
 	core_snps_2_fasta("SNP_genomes.list", "SNP_positions.core.list",ref,"SNP_alignment")
+	if os.stat("SNP_alignment.core.fasta").st_size > 10:
+		print ("Core-SNPs aligmment detected...\n")
+	else:
+                sys.exit("\nERROR: Core-SNPs alignment not present, check your input files...\n")
 
-
-def Purple_snp_call(ref,cpus,Results_folder_name):
-	print("Aligning genomes with Purple (Mauve-based)")
-	os.system("cp -r ../Purple .")
-	os.system("mv Align Purple/")
-	os.chdir("..")
-	gffname=check_gff(ref)
-	cmd="cp %s %s/Purple/" %(gffname,Results_folder_name)
-	os.system(cmd)
-	cmd="cp %s %s/Purple/" %(ref,Results_folder_name)
-	os.system(cmd)
-	os.chdir(Results_folder_name)
-	os.chdir("Purple")
-	localref=ref.split("/")[-1]
-	condaprefix=os.popen("echo $CONDA_PREFIX").read().strip()
-	libpath="%s/lib/perl5/site_perl/5.22.0/" %(condaprefix)
-	os.environ['PERL5LIB'] = libpath
-	cmd="perl Purple_v1.22.2.pl -r %s -g %s -f Align -cpu %i" %(localref,gffname,cpus)
-	os.system(cmd)
-	os.system("mv Align_OUT/Results/Fasta_SNPs/Align.core_SNPs.fasta ../SNP_alignment.core.fasta")
-	os.chdir("..")
 
 
 
@@ -170,23 +152,15 @@ def create_dummy_gff(ref):
 	return name+".gff"
 
 
-def check_gff(ref):
 
-	if args.gff:
-		print ("Using %s annotation file..." %args.gff)
-		gffname=args.gff
 
-	else:
-		gffname=create_dummy_gff(ref)
-		print ("Generating dummy annotation file...")
-	return gffname
 
 ### MAIN
 args = parse_args()
 
 timefunct=datetime.datetime.now()
-Results_folder_name="Results_%s-%s-%s_%s-%s" %(str(timefunct.year),str(timefunct.month),str(timefunct.day),str(timefunct.hour),
-	str(timefunct.minute))
+Results_folder_name="Results_%s-%s-%s_%s-%s-%s" %(str(timefunct.year),str(timefunct.month),str(timefunct.day),str(timefunct.hour),
+	str(timefunct.minute),str(timefunct.second))
 os.mkdir(Results_folder_name)
 logfile()
 path_dir = os.path.abspath( os.path.dirname( Results_folder_name ) ) 
@@ -204,17 +178,77 @@ threads=args.threads
 nearest=args.near
 bkg_folder=args.bkg_folder
 
+
 ref=os.path.abspath(ref)
 ABS_query_folder=os.path.abspath(query_folder)
-Qglobber="%s/*.fna" %(ABS_query_folder)
-genomes_query = glob.glob(Qglobber)
-genomes_query= [i.strip().split("/")[-1] for i in genomes_query]
 
 
+#Qglobber="%s/*.fna" %(ABS_query_folder)
+#genomes_query = glob.glob(Qglobber)
+
+exts=['*.fasta', '*.fna', '*.fa']
+
+files = [f for ext in exts for f in glob.glob(os.path.join(ABS_query_folder, ext))]
+
+
+genomes_query = [i.strip().split("/")[-1] for i in files]
+#genomes_query=[i.replace(".fasta",".fna").replace(".fa",".fna") for i in genomes_query]
+
+
+
+### CHECK N 2
+
+print ("Check input formats...\n")
+
+ref_file=open(ref,"r")
+
+for id in ref_file.readlines()[0:1]:
+      
+      if id[0].strip()!=">":
+              sys.exit('\nERROR: the reference file need to be a FASTA file!!!')
+
+
+
+### CHECK N 3
+
+if db_sketch.split(".")[-1]!="msh":
+	
+	sys.exit("\n\nERROR: check you sketch file!!!")
+
+
+### CHECK N 4
+
+
+for gen in genomes_query:
+
+	if gen.endswith(".fasta") or gen.endswith(".fna") or gen.endswith(".fa"):
+		n_genomes=len(genomes_query)
+		print ("Detected %i genomes in the query folder\n" %n_genomes)
+	
+		break
+	
+	else:
+		sys.exit("\n\nERROR: you query genome folder does not contain fasta files!!!")
+
+	
+
+
+for gen_names in genomes_query:
+	ext=gen_names.strip().split(".")[-1]
+	if (ext == "fa" or ext == "fasta") :
+		
+		#print ("%s/%s","%s/%s.fna" %(query_folder,gen_names,query_folder,gen_names.strip(ext).strip(".")))
+		os.rename ("%s/%s" %(query_folder,gen_names), "%s/%s.fna" %(query_folder,gen_names.strip(ext).strip("."))) 
+
+	
 NEAREST=[]
 for i in genomes_query:
 	cmd="mash dist %s/%s %s -p %i | sort -gr -k5 | head -n %i | cut -f2"  %(query_folder,i,db_sketch,threads,nearest)
 	NEAREST=NEAREST+(os.popen(cmd).read().strip().strip('\n').split('\n'))
+	#print (cmd)
+
+
+
 
 NEAREST=list(set(NEAREST))
 
@@ -223,10 +257,10 @@ NEAREST=[i.split("/")[-1] for i in NEAREST]
 print ("Sketches completed...")
 
 
-
-
-
 os.chdir(Results_folder_name)
+
+
+
 
 with open("query_genome_list.txt","w") as q:
 	for i in genomes_query:
@@ -240,6 +274,9 @@ with open("backgroud_genome_list.txt","w") as q:
 os.mkdir("Background")
 
 
+
+
+
 if args.bkg_folder:
 	print ("Retrieving nearest genomes from the %s folder" %args.bkg_folder)
 	os.chdir("..")
@@ -250,16 +287,17 @@ if args.bkg_folder:
 		os.system(cmd)
 else:
 	os.chdir("Background")
-	print ("Retrieving nearest genomes from the PATRIC-DB")
+	print ("Retrieving nearest genomes from the PATRIC-DB...\n")
 	for N in NEAREST:
-		N=N.replace(".fna","").replace(".fasta","")
+		N=N.replace(".fna","").replace(".fasta","").replace(".fa","")
 		print(N)
 		cmd='wget -qN "ftp://ftp.patricbrc.org/genomes/%s/%s.fna"' %(N,N)
 		print(cmd)
 		os.system(cmd)
 	os.chdir("..")
-
+	
 os.mkdir("Align")
+
 
 
 
@@ -274,17 +312,16 @@ os.system("cp %s/*.fna Align" %(ABS_query_folder))
 check_res_vir(threads)
 
 
-
-
 if args.call == 'mummer':
 	Mummer_snp_call(threads,ref)
+	
 elif args.call == 'purple':
 	Purple_snp_call(ref,threads,Results_folder_name)
 
 
 
 
-print("Performing phylogeny reconstruction")
+print("Performing phylogenetic reconstruction...\n")
 
 cmd="raxmlHPC-PTHREADS -f a -x 12345 -p 12345 -# 100 -m ASC_GTRGAMMA -s SNP_alignment.core.fasta -n coreSNPs_Phylo.nwk -T %i --no-bfgs --asc-corr=lewis" %(threads)
 os.system(cmd)
@@ -315,6 +352,9 @@ minutes=((time/3600)-hours)*60
 #outF="Results_%s" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 #os.makedirs(outF)
 
+
+
+
 """
 os.makedirs("phylogeny outbreak_detection")
 os.system("mv RAxML_* phylogeny/")
@@ -324,11 +364,11 @@ os.system("mv *csv outbreak_detection/")
 os.system("mv *svg outbreak_detection/")
 """
 
+
 print ("\n\n\n\n\n\n\n\n\n")
 print ("####################\n")
 print ("Analysis completed in %i hours and %f minutes" %(hours,minutes))
 print ("####################\n")
-
 
 
 
