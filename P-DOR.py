@@ -11,11 +11,11 @@ import glob
 import os
 #from os.path import join
 #from glob import glob
-from Skynet_SNPs_library_4_0 import core_snps_2_fasta
-from Skynet_SNPs_library_4_0 import core_snps_two_files
-from Skynet_SNPs_library_4_0 import core_snps_list_path
-from Skynet_SNPs_library_4_0 import snp_calling_mauve
-from Skynet_SNPs_library_4_0 import card_resistance_genes
+from PDOR_lib import core_snps_2_fasta
+from PDOR_lib import core_snps_two_files
+from PDOR_lib import core_snps_list_path
+from PDOR_lib import snp_calling_mauve
+
 
 ## FUNCTIONS
 
@@ -28,7 +28,7 @@ def parse_args():
                 epilog="According to the legend, P-dor is the Son of K-mer, but it also likes SNPs")
 
         requiredNamed = parser.add_argument_group('Input data')
-        requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=True)
+        requiredNamed.add_argument('-q', help='MA QUESTO SCRIPT LO AVETE FATTO VOI?query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=True)
         requiredNamed.add_argument("-db", help="background sketch file",metavar="<dirname>",dest="db_sketch", required=True)
         requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=True)
         
@@ -39,12 +39,13 @@ def parse_args():
         optional.add_argument("-meta", help="metadata file; see example file for formatting",default=None,required=False)
         optional.add_argument("-gff", help="annotation file in gff format; if not specified (default) a dummy gff is generated",required=False,default="",nargs="?")
         optional.add_argument("-bkg_folder", help="folder containing the genomes from which the background sketch was created",required=False,default="",nargs="?")
-        optional.add_argument("-call", help="Snps calling method",required=False, choices=['purple', 'mummer'],default="mummer")
-
+        optional.add_argument("-borders", type=int, help="length of the regions at the contig extremities from which SNPs are not called",metavar="<int>",default=20)
+        optional.add_argument("-min_contig_length", type=int, help="minimum contig length to be retained for SNPs analysis",metavar="<int>",default=500)
+        optional.add_argument("-snp_spacing", type=int, help="Number of bases surrounding the mutated position to call a SNP",metavar="<int>",default=10)
         optional.add_argument('-n', type=int,help='Maximum closest genomes from database',metavar="<int>",dest="near",default=20)
         optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=2)
 
-        parser.add_argument('-v', '--version', action='version', version='P-DOR v0.1')
+        parser.add_argument('-v', '--version', action='version', version='P-DOR v1.0')
 
         args = parser.parse_args()
         snp_threshold=args.snp_threshold
@@ -72,18 +73,6 @@ def logfile():
 		for arg, value in sorted(vars(args).items()):
 			p.write("%s\t%s\n" %(arg,value))
 
-
-
-
-"""
-def check_folder(folder):
-	folder_path=os.path.abspath(folder)
-	if os.path.isdir(folder):
-		sys.exit("\n\nERROR: the {} already exists!".format(folder_path))
-		#sys.stderr.write("%s %s\n" % (foo, bar)		#raise Exception("{} already exists".format(folder_path)) ## \nuse -f overwrite???
-
-
-"""
 
 
 
@@ -130,10 +119,10 @@ def Mummer_snp_call(threads,ref):
 	#os.rename(".fasta",".fna").replace(".fa","fna")
 	print("Aligning genomes with Mummer4...\n")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+"Align")
-	os.system('ls *fna | parallel -j %i "nucmer -p {} %s {}; show-snps -H -C -I -r -T {}.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
+	os.system('ls *fna| parallel -j %i "nucmer --maxgap=500 -p {} %s {}; delta-filter -1 {}.delta > {}_filtered.delta; show-snps -H -C -I -r -T {}_filtered.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
 	os.chdir("..")
 	os.system("ls Align/*.snp >SNP_genomes.list")
-	core_snps_list_path("SNP_genomes.list", 2, "SNP_positions")
+	core_snps_list_path("SNP_genomes.list", snp_spacing, "SNP_positions")
 	core_snps_2_fasta("SNP_genomes.list", "SNP_positions.core.list",ref,"SNP_alignment")
 	if os.stat("SNP_alignment.core.fasta").st_size > 10:
 		print ("Core-SNPs aligmment detected...\n")
@@ -168,6 +157,7 @@ path_dir = os.path.abspath( os.path.dirname( Results_folder_name ) )
 os.system("mv PDOR.log %s" %(Results_folder_name))
 
 
+
 start_time = time.time()
 
 
@@ -176,6 +166,9 @@ db_sketch=args.db_sketch
 ref=args.ref
 threads=args.threads
 nearest=args.near
+borders=args.borders
+contig_length=args.min_contig_length
+snp_spacing=args.snp_spacing
 bkg_folder=args.bkg_folder
 
 
@@ -228,7 +221,7 @@ for gen in genomes_query:
 		break
 	
 	else:
-		sys.exit("\n\nERROR: you query genome folder does not contain fasta files!!!")
+		sys.exit("\n\nERROR: your query genome folder does not contain fasta files!!!")
 
 	
 
@@ -248,7 +241,7 @@ for i in genomes_query:
 	#print (cmd)
 
 
-
+#assert 1==2
 
 NEAREST=list(set(NEAREST))
 
@@ -304,29 +297,43 @@ os.mkdir("Align")
 
 for i in glob.glob("Background/*"):
 	name=i.strip().split("/")[-1]
-	os.system("cp %s Align/DB_%s" %(i,name))
+	#trim and select contigs
+	oF=open("Align/DB_%s" %(name),"w")
+	for x in SeqIO.parse(i,"fasta"):
+		if len(str(x.seq))>=contig_length+2*borders:
+			x.seq=x.seq[borders:-borders]
+			SeqIO.write(x,oF,"fasta")
+	oF.close()
 
-os.system("cp %s/*.fna Align" %(ABS_query_folder))
+for i in glob.glob("%s/*" %(ABS_query_folder)):
+	name=i.strip().split("/")[-1]
+	#trim and select contigs
+	oF=open("Align/%s" %(name),"w")
+	for x in SeqIO.parse(i,"fasta"):
+		if len(str(x.seq))>=contig_length+2*borders:
+			x.seq=x.seq[borders:-borders]
+			SeqIO.write(x,oF,"fasta")
 
 
-check_res_vir(threads)
-
-
-if args.call == 'mummer':
-	Mummer_snp_call(threads,ref)
-	
-elif args.call == 'purple':
-	Purple_snp_call(ref,threads,Results_folder_name)
+	oF.close()
 
 
 
+### INCOMPLETED HERE ???
+
+#for i in glob.glob("Align"):
+#os.system("cp %s/*.fna Align" %(ABS_query_folder))
+
+###
+
+#check_res_vir(threads)
+
+Mummer_snp_call(threads,ref)
 
 print("Performing phylogenetic reconstruction...\n")
 
 cmd="raxmlHPC-PTHREADS -f a -x 12345 -p 12345 -# 100 -m ASC_GTRGAMMA -s SNP_alignment.core.fasta -n coreSNPs_Phylo.nwk -T %i --no-bfgs --asc-corr=lewis" %(threads)
 os.system(cmd)
-
-
 
 
 os.system("Rscript ../Snpbreaker.R SNP_alignment.core.fasta %s" %(args.snp_threshold))
@@ -369,6 +376,4 @@ print ("\n\n\n\n\n\n\n\n\n")
 print ("####################\n")
 print ("Analysis completed in %i hours and %f minutes" %(hours,minutes))
 print ("####################\n")
-
-
 
