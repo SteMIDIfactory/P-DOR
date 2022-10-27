@@ -1,0 +1,11 @@
+bkg_folder	data/test_DB/
+borders	20
+db_sketch	data/sketches.msh
+meta	data/sample_metadata_table.txt
+min_contig_length	500
+near	2
+query_folder	data/test_query
+ref	data/NJST258.fna
+snp_spacing	10
+snp_threshold	infl
+threads	4
