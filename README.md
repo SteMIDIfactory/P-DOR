@@ -47,28 +47,30 @@ python P-DOR.py -q [query genome folder] -sd [Source Dataset sketch file] -ref [
 
 Input data:
   -q <dirname>          query folder containing genomes in .fna format
-  -db <filename>         background sketch file - See "Pre-sketched databases" section
+  -sd <dirname>         Source Dataset (SD) sketch file
   -ref <filename>       reference genome
   -snp_thr SNP_THRESHOLD
                         Threshold number of SNPs to define an epidemic
                         cluster: choices are an integer number or type 'infl'
-                        to calculate the threshold by the inflection point of SNPs
+                        to calculate it by the inflection point of SNPs
                         distribution
 
 Additional arguments:
   -meta META            metadata file; see example file for formatting
                         (default: None)
-  -gff [GFF]            annotation file in gff format; if not specified
-                        (default) a dummy gff is generated (default: )
-  -bkg_folder [BKG_FOLDER]
-                        folder containing the genomes from which the
-                        background sketch was created; if not specified
-                        (default) nearest genomes are downloaded from the
-                        PATRIC-DB (default: )
-  -call {purple,mummer}
-                        Snps calling method (default: mummer)
-  -n <int>              Maximum nearest genomes from database (default: 20)
-  -t <int>              number of threads (default: 10)
+  -sd_folder [BKG_FOLDER]
+                        folder containing the genomes from which the Source
+                        Dataset (SD) sketch was created (default: )
+  -borders <int>        length of the regions at the contig extremities from
+                        which SNPs are not called (default: 20)
+  -min_contig_length <int>
+                        minimum contig length to be retained for SNPs analysis
+                        (default: 500)
+  -snp_spacing <int>    Number of bases surrounding the mutated position to
+                        call a SNP (default: 10)
+  -n <int>              Maximum closest genomes from Source Dataset (SD)
+                        (default: 20)
+  -t <int>              number of threads (default: 2)
 
 ```
 ### Test run
