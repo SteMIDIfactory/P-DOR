@@ -1,4 +1,7 @@
 rm(list=ls())
+
+suppressPackageStartupMessages({
+    
 library(svglite)
 library(pheatmap)
 library(RColorBrewer)
@@ -7,6 +10,10 @@ library(ggnewscale)
 library(ggtreeExtra)
 library(reshape2)
 library(ggplot2)
+
+})
+
+
 args=commandArgs(trailingOnly = TRUE)
 snp_phylotree<-args[1]
 
@@ -35,9 +42,16 @@ report<-read.delim("summary_resistance_virulence",sep='\t')
 
 report$X.COVERAGE<-as.character(report$X.COVERAGE)
 report$X.IDENTITY<-as.character(report$X.IDENTITY)
+
+ref_name<-sub(".*\\/", "", ref_name)
+
 new_ref_name<-paste(unique(report[which(report$X.FILE==ref_name),"SEQUENCE"]),".fna",sep="")
+#new_ref_name<-unique(report[which(report$X.FILE==ref_name),"SEQUENCE"])
+
 
 report$X.FILE<-gsub(ref_name,new_ref_name,report$X.FILE)
+
+
 
 report<-report[grep("fna|fasta",report$X.FILE),]
 
@@ -66,6 +80,8 @@ colnames(mtab)<-gsub("[(]","",colnames(mtab))
 colnames(mtab)<-gsub("[)]","",colnames(mtab))
 
 
+
+
 mtab1<-matrix(as.character(mtab),ncol = ncol(mtab))
 rownames(mtab1)<-rownames(mtab)
 colnames(mtab1)<-colnames(mtab)
@@ -79,6 +95,7 @@ colnames(add)<-"STRAIN_ID"
 
 mm<-merge(cluster_file,add,by="STRAIN_ID",all = T)
 mm<-mm[which(mm$STRAIN_ID %in% tree$tip.label),]
+
 
 rr<-unique(rbind(mm,cluster_file))
 
@@ -94,18 +111,23 @@ color_vec[names(color_vec) == "Other"] <- "darkgrey"
 
 
 
-pp <- p %<+% rr + geom_tiplab(aes(color=cluster,fontface=2),alpha=1,size=length(rr$STRAIN_ID)*12/100,show.legend = FALSE)+
-  geom_tippoint(aes(color=cluster),size=length(rr$STRAIN_ID)*7/100,alpha = 0)+#scale_color_discrete(breaks = levels(factor(rr$cluster)))+
+pp <- p %<+% rr + geom_tiplab(aes(color=cluster,fontface=2),alpha=1,size=length(rr$STRAIN_ID)*15/100,show.legend = FALSE)+
+  geom_tippoint(aes(color=cluster),size=length(rr$STRAIN_ID)*7/100,alpha = 0)+
   theme_tree2()+theme(legend.text=element_text(size=length(rr$STRAIN_ID)*40/100),legend.title = element_text(size=length(rr$STRAIN_ID)*40/100))+
-  guides(colour = guide_legend("Cluster", override.aes = list(size = 40, alpha = 1)))+
-  scale_color_manual(values = color_vec)#+geom_fruit(geom=geom_point,mapping=aes(color=cluster),size=3)
+  guides(colour = guide_legend("Cluster", override.aes = list(size = length(rr$STRAIN_ID)*40/100, alpha = 1)))+
+  scale_color_manual(values = color_vec)
 
-hm <- gheatmap(pp,mtab1, offset = 2, width=0.3, font.size=length(rr$STRAIN_ID)*12/100, colnames_position= "top",
+
+
+suppressMessages(hm <- gheatmap(pp,mtab1, offset = 2, width=0.3, font.size=length(rr$STRAIN_ID)*12/100, colnames_position= "top",
                colnames_angle = 90, colnames_offset_y = -0.2, hjust = 0) +
   scale_fill_manual(values = c("0" = "white","1" = "#960018"))+
-  scale_y_continuous(limits=c(-1, NA))+ guides(fill="none")
+  scale_y_continuous(limits=c(-1, NA))+ guides(fill="none"))
 
 
 
 ggsave(hm, filename = "annotated_tree.svg",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.5 ,
-       units = "cm",scale=1.5,limitsize = F)
+       units = "cm",scale=1.3,limitsize = F)
+
+
+
