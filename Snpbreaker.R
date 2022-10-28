@@ -1,4 +1,8 @@
+
 rm(list=ls())
+
+suppressPackageStartupMessages({
+
 library(ape)
 library(reshape2)
 library(ggplot2)
@@ -6,6 +10,10 @@ library(igraph)
 library(pheatmap)
 library(svglite)
 library(RColorBrewer)
+
+})
+
+options(warn=-1)
 
 args=commandArgs(trailingOnly = TRUE)
 
@@ -32,8 +40,8 @@ dist_matrix_query_vs_all<-dist_matrix[rownames(query_genomes),]
 
 svg(filename = "SNP_heatmap_query_vs_all.svg",
     width = 10, height = 10, pointsize = 8)
-query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100))
-dev.off()
+query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100),fontisize=ncol(dist_matrix)*50/100)
+invisible (dev.off())
 
 write.csv(dist_matrix,"snp_distance_matrix.tsv",sep='\t')
 ###
@@ -48,7 +56,7 @@ if (snp_threshold !="infl"){
                  ylim=range(0, max(snp_plot$counts)+max(snp_plot$breaks)*0.05),col = c("darkgreen"),
                  xlab = "pairwise SNPs distance")
   abline(v = snp_threshold, col="red", lwd=3, lty=2)
-  dev.off()
+  invisible (dev.off()) 
   
   
   
@@ -60,7 +68,7 @@ if (snp_threshold !="infl"){
       width = 10, height = 10, pointsize = 8)
   gr<-graph_from_data_frame(links, directed = FALSE)
   plot(gr)
-  dev.off()
+  invisible (dev.off())
   out_cluster<-as.data.frame(components(gr)$membership)
   colnames(out_cluster)<-"cluster"
   out_cluster$cluster<-paste("C",out_cluster$cluster,sep="")
@@ -88,7 +96,7 @@ if (snp_threshold !="infl"){
                  ylim=range(0, max(snp_plot$counts)+max(snp_plot$breaks)*0.05),col = c("darkgreen"),
                  xlab = "pairwise SNPs distance")
   abline(v = min_flex, col="blue", lwd=3, lty=2)
-  dev.off()
+  invisible (dev.off())
   
   
   
@@ -109,7 +117,7 @@ if (snp_threshold !="infl"){
   colnames(out_cluster)[2]<-"STRAIN_ID"
   write.table(out_cluster,sprintf("clusters_calculated_threshold_%s_snps.csv",min_flex),row.names = F,quote = F,sep='\t')
   plot(gr)
-  dev.off()
+  invisible(dev.off())
   
   
 } 
