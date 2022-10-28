@@ -1,10 +1,15 @@
 rm(list=ls())
+
+suppressPackageStartupMessages({
+
 library(ggnewscale)
 library(ggplot2)
 library(reshape2)
 library(svglite)
 library(dplyr)
 library(RColorBrewer)
+
+})
 
 
 args=commandArgs(trailingOnly = TRUE)
@@ -15,6 +20,7 @@ hospitalization_file <- args[1]
 
 hospitalization<-read.delim(hospitalization_file,sep='\t')
 
+#hospitalization<-read.delim("sample_metadata_table.txt",sep='\t')
 
 ###########################################################################
 hospitalization$STRAIN_ID<-gsub(".fna","",hospitalization$STRAIN_ID)
@@ -62,15 +68,9 @@ isol<-select(mm,ISOLATION_DATE,PATIENT_ID, status)
 pal_ward<-c("#e8177d","#7c44ad","#0072B2","#336a8f" ,"#2b9900" ,"#B3B3B3")
 ward<-pal_ward[1:length(levels(factor(moving$WARD2)))]
 names(ward) <- levels(factor(moving$WARD2))
-# col_df<-as.data.frame(col_ward)
-# col_df$WARD2<-rownames(col_df)
-# mm_col<-merge(mm,col_df,by="WARD2")
-# pals<-setNames(mm_col$col_ward,mm_col$WARD2)
-
-###
 
 
-contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end=WARD_DATE_EXIT, aes(WARD_DATE_ENTRY, PATIENT_ID)) +
+suppressWarnings(contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end=WARD_DATE_EXIT, aes(WARD_DATE_ENTRY, PATIENT_ID)) +
   theme_classic()+
   geom_segment(data = moving,mapping = aes(color=WARD2, group=PATIENT_ID,
                    y=PATIENT_ID,xend=WARD_DATE_EXIT,yend=PATIENT_ID),alpha = .4, size=10)+
@@ -86,9 +86,9 @@ contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end=WARD_DATE_EXIT, 
         axis.title.x = element_text(hjust = 1,size=15))+
   labs(shape="condition")+ scale_linetype(guide = "none") +ggnewscale::new_scale_color() +
   geom_line(data=clust, aes(ISOLATION_DATE,PATIENT_ID, group=cluster, linetype=cluster,color=cluster),size=0.9,alpha=1)+
-  scale_color_manual(values = brewer.pal(length(levels(factor(clust$cluster))), "Set1"))
-  #scale_color_manual(values = c("C6"="orange","C4"="#90EE90","C5"="#87CEEB"))
-  #scale_color_manual(values = c("C6"="#FFA500","C4"="#FF3333","C5"="#6495ED"))
+  scale_color_manual(values = rev(brewer.pal(length(levels(factor(clust$cluster))), "Paired")))
+
+)
 
 
 
@@ -97,6 +97,5 @@ var_height<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$y
 var_width<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$x$get_labels())
 
 ggsave(plot = contact_network_plot, filename = "contact_network_plot.svg",
-       width = var_width, height=var_height , units = "cm",limitsize = F,scale = 2)
-
+       width = var_width*1.5, height=var_height*1.5 , units = "cm",limitsize = F,scale = 2)
 
