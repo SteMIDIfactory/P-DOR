@@ -40,7 +40,7 @@ dist_matrix_query_vs_all<-dist_matrix[rownames(query_genomes),]
 
 svg(filename = "SNP_heatmap_query_vs_all.svg",
     width = 10, height = 10, pointsize = 8)
-query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100),fontisize=ncol(dist_matrix)*50/100)
+query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100),fontsize=ncol(dist_matrix)*50/100)
 invisible (dev.off())
 
 write.csv(dist_matrix,"snp_distance_matrix.tsv",sep='\t')
