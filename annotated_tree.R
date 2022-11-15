@@ -104,7 +104,9 @@ rr$cluster<-ifelse(is.na(rr$cluster),"Other",rr$cluster)
 
 rr<-rr[order(rr$cluster),]
 
-cols<-brewer.pal(n = nrow(table(rr$cluster)), name = "Dark2")
+ncols<-nrow(table(rr$cluster))
+cols <- colorRampPalette(brewer.pal(8, "Dark2"))(ncols)
+#cols<-brewer.pal(n = nrow(table(rr$cluster)), name = "Dark2")
 color_vec <- cols
 names(color_vec) <- unique(rr$cluster)
 color_vec[names(color_vec) == "Other"] <- "darkgrey"
