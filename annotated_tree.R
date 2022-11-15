@@ -113,7 +113,7 @@ color_vec[names(color_vec) == "Other"] <- "darkgrey"
 
 
 
-pp <- p %<+% rr + geom_tiplab(aes(color=cluster,fontface=2),alpha=1,size=length(rr$STRAIN_ID)*15/100,show.legend = FALSE)+
+pp <- p %<+% rr + geom_tiplab(aes(color=cluster,fontface=2),alpha=1,size=length(rr$STRAIN_ID)*12/100,show.legend = FALSE)+
   geom_tippoint(aes(color=cluster),size=length(rr$STRAIN_ID)*7/100,alpha = 0)+
   theme_tree2()+theme(legend.text=element_text(size=length(rr$STRAIN_ID)*40/100),legend.title = element_text(size=length(rr$STRAIN_ID)*40/100))+
   guides(colour = guide_legend("Cluster", override.aes = list(size = length(rr$STRAIN_ID)*40/100, alpha = 1)))+
