@@ -8,11 +8,12 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 import sys
 import select
+import copy
 from datetime import datetime
 
 def main():
 	args = parseArgs().parse_args()
-	if args.species is not None:
+	if args.subcommand=="download":
 	#create a tmp directory to store intermediate results
 		if not os.path.exists(".tmp"):
 			os.mkdir(".tmp")
@@ -23,30 +24,66 @@ def main():
 
 ### DOWNLOADING and reading last release of BV-BRC and filtering based on genome length, number of contigs and GC content
 	#whole_list : last release of bvbrc genome_metadata
+
+
 		whole_list = os.system("wget ftp://ftp.bvbrc.org/RELEASE_NOTES/genome_metadata")
+
+
 	#sTable : filter only selected species from whole list and remove only plasmidic sequences
 		sTable = filter_species("genome_metadata", args.species)
 		genomelength_filter = filter_IQRbased(sTable, 'genome_length')
 		contigs_filter = filter_IQRbased(genomelength_filter, 'contigs')
 		gc_filter = filter_IQRbased(contigs_filter, 'gc_content')
+		os.chdir("..")
+		download_list = list(gc_filter['genome_id'])
+		spacerequired =  gc_filter['genome_length'].sum()
+		num_orig_genomes = len(download_list)
+		if args.folder is not None:
+			print("\n\nChecking genomes in folder %s" %(args.folder))
+			extragenomes=[]
+			Astats=os.popen("ls %s/*.fna | parallel -j %i 'assembly-stats -u {} | cut -f1,2'" %(args.folder,args.threads)).readlines()
+			gc_filter=gc_filter.set_index("genome_id",drop=False)
+			DICT=gc_filter.to_dict(orient="index")
+			for AS in Astats:
+				AS=AS.split()
+				name=AS[0]
+				id=AS[0].split("/")[-1].replace(".fna","")
+				length=int(AS[1])
+				try:
+					if int(DICT[id]["genome_length"])==length:
+						download_list.remove(id)
+						spacerequired=spacerequired-length
+				except:
+					extragenomes.append(name)
+			if len(extragenomes)>0:
+				extrafolder=args.folder.strip().split("/")
+				extrafolder[-1]="Excluded_"+extrafolder[-1]
+				extrafolder=os.path.abspath("/".join(extrafolder))
+				os.mkdir(extrafolder)
+				print("\n\n%i genomes in your folder must be excluded from the sketch dataset. Moving them to folder %s" %(len(extragenomes),extrafolder))
+				for e in extragenomes:
+					os.system("mv %s %s" %(e,extrafolder))
+
 
 ### DOWNLOAD
 	#Do you really want to start the download?
 	#assuming 1 base = ~ 1 byte
-		download_list = list(gc_filter['genome_id'])
-		spacerequired =  humansize(gc_filter['genome_length'].sum())
+		spacerequired =  humansize(spacerequired)
 		num_genomes = len(download_list)
 		yes_or_no = lambda prompt: 'n' not in timeout_input(prompt + "? (Y/n)", 30, default="y")[1].lower()
-		print(("You're going to download %s genomes from the BV-BRC database for a total of %s \nPlease check you have enough space on disk") %(num_genomes, spacerequired))
+		print(("\n\n%i genomes were selected for download from the BV-BRC database. %i are already present in your folder.\nYou're going to download %i genomes for a total of %s \nPlease double-check that you have enough space on disk") %(num_orig_genomes,(num_orig_genomes-num_genomes),num_genomes, spacerequired))
 		answer = yes_or_no('Continue')
 
 		#YES download!
 		if answer == True:
-			print("Downloading genomes...")
-			name_folder = "PDORdb_" + (args.species).replace(' ', '') + dt_string
-			os.chdir("..")
-			if not os.path.exists(name_folder):
-				 os.mkdir(name_folder)
+			print("\n\nDownloading genomes...")
+
+			if args.folder is None:
+				name_folder = "PDORdb_" + (args.species).replace(' ', '') + dt_string
+				if not os.path.exists(name_folder):
+					os.mkdir(name_folder)
+			else:
+				name_folder=args.folder
 			os.chdir(name_folder)
 			download = download_genome(download_list)
 		## Check all the genomes have been downloaded
@@ -57,33 +94,42 @@ def main():
 			else: #If a genome(/a few genomes) is missing, try to download it again
 				for genome in check_download:
 					try_download = download_genome(genome)
+			empties=os.popen("find . -maxdepth 1 -type f -size -100k -ls | grep '.fna' | cut -f2 -d'/'").readlines()
+			for e in empties:
+				os.system("rm %s" %(e))
 			final_db_list = [s.strip('.fna') for s in os.listdir()]
-			print(("A final number of %s genomes have been downloaded") % len(final_db_list))
+			print(("\n\nThe dataset folder contains a total number of %s genomes") % len(final_db_list))
+			gc_filter=gc_filter.reset_index(drop=True)
 			final_db_tb = pd.DataFrame(final_db_list, columns=["genome_id"], dtype=str)
 			FinalTable = pd.merge(gc_filter, final_db_tb, how='inner')
 			FinalTable.to_csv("../"+"_".join(species.strip('"').split(" "))+dt_string+"_list.tsv", sep='\t')
 
 
 ### MASH SKETCH
-			os.system("ls * > sketches")
-			os.system('mash sketch -l sketches')
+			os.system("ls *.fna > sketches")
+			os.system('mash sketch -l sketches -p %i' %(args.threads))
 			os.system('rm sketches')
 			os.system('mv sketches.msh ../.')
+
+
 			os.system('rm -r ../.tmp')
-			print("...Done! Now you can run PDOR analysis")
+
+
+			print("...Done! Now you can run the P-DOR analysis")
 
 	#Exiting
 		else:
 			print("Exiting...")
-			os.system("rm -r ../.tmp")
+
+			os.system("rm -r .tmp")
 
 #### ONLY SKETCH MODE
-	if args.sketch_only is not None:
-		os.chdir(args.sketch_only)
-		os.system("ls * > sketches")
-		os.system('mash sketch -l sketches')
+	elif args.subcommand=="sketch":
+		os.chdir(args.folder)
+		os.system("find . -maxdepth 1 -type f -size +100k -ls | grep '.fna' | cut -f2 -d"/" > sketches")
+		os.system('mash sketch -l sketches -p %i' %(args.threads))
 		os.system('mv sketches.msh ../.')
-		print("...Done! Now you can run PDOR analysis: python P-DOR.py -q [query genome folder] -sd sketches.msh -ref [reference genome] -snp_thr infl")
+		print("...Done! Now you can run the P-DOR analysis: python P-DOR.py -q [query genome folder] -sd sketches.msh -ref [reference genome] -snp_thr infl")
 
 
 
@@ -133,15 +179,20 @@ def timeout_input(prompt, timeout=10, default=""):
     print()
     return (0, sys.stdin.readline().strip()) if inputs else (-1, default)
 
+
 ### HELP
 def parseArgs():
 	parser = argparse.ArgumentParser(prog='makepdordb', description='makepdordb: create a well curated genomic database for P-DOR analysis')
-	fullpipe = parser.add_mutually_exclusive_group(required=True) # options mutually exclusive
-	fullpipe.add_argument('-s', '--species', help=' Name of the species you want to analyse  e.g. makepdordb -s "Acinetobacter baumannii" ', required=False, metavar='')
-	fullpipe.add_argument('-sketch', '--sketch_only', help=' Sketching a user-defined database e.g. makepdordb -sketch mygenomes/', required=False, metavar='')
+	parser.add_argument('-t', '--threads', type=int, help='number of threads to be used with mash and assembly-stats (used when checking existing genomes)',required=False, default=1)
+	subparsers = parser.add_subparsers(help='You can either sketch a collection of your genomes or download them from the BV-BRC database', dest="subcommand")
+	parser_a = subparsers.add_parser('sketch', help='This option sketches the genomes contained in a user-defined folder')
+	parser_a.add_argument('-f', '--folder', type=str, help='path to the folder where the genomes you want to sketch are stored',required=True)
+
+	parser_b = subparsers.add_parser('download', help='This options downloads genomes from the BV-BRC database, filters them for quality and sketches them')
+	parser_b.add_argument('-f', '--folder', type=str, help='path to the folder where you want to store genomes or a previous version of the dataset is stored. Genomes are checked and not downloaded if already present. If no folder name is provided, a new folder will be created automatically',required=False)
+	parser_b.add_argument('-s', '--species', help=' Name of the species you want to analyse', required=True)
+
 	return parser
-
-
 
 # Call main function
 if __name__ == '__main__':
