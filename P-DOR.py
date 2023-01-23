@@ -56,6 +56,11 @@ def logfile():
 
 
 
+"""
+### CHANGE TO AMRFINDERPLUS
+### UPDATE DB automatically
+### Check if abs paths are working
+
 
 def check_res_vir(threads,AD_folder):
 	print ("Checking for resistance and virulence genes...")
@@ -85,13 +90,13 @@ def check_res_vir(threads,AD_folder):
 				os.system("rm *report")
 				rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
 				os.system(rm_ref)
-				os.system("mv summary_resistance_virulence ../")
+				os.system("mv summary_resistance_virulence %s/" %(path_dir))
 
 
 		except IndexError:
 
 			pass
-
+"""
 
 
 def Mummer_snp_call(threads,ref,Align_folder):
@@ -99,14 +104,14 @@ def Mummer_snp_call(threads,ref,Align_folder):
 	print("Aligning genomes with Mummer4...\n")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+Align_folder)
 	os.system('ls *fna| parallel -j %i "nucmer --maxgap=500 -p {} %s {}; delta-filter -1 {}.delta > {}_filtered.delta; show-snps -H -C -I -r -T {}_filtered.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
-	os.chdir("..")
+	os.chdir(path_dir+"/"+Results_folder_name)
 	os.system("ls %s/*.snp >SNP_genomes.list" %(Align_folder))
 	core_snps_list_path("SNP_genomes.list", snp_spacing, "SNP_positions")
 	core_snps_2_fasta("SNP_genomes.list", "SNP_positions.core.list",ref,"SNP_alignment")
 	if os.stat("SNP_alignment.core.fasta").st_size > 10:
-		print ("Core-SNPs aligmment detected...\n")
+		print ("Core-SNPs aligmment detected!\n")
 	else:
-                sys.exit("\nERROR: Core-SNPs alignment not present, check your input files...\n")
+                sys.exit("\nERROR: Core-SNPs alignment not present, check your input files!\n")
 
 
 
@@ -119,7 +124,8 @@ datestamp=time_now.strftime("%Y-%m-%d_%H-%M-%S")
 Results_folder_name="Results_%s" %(datestamp)
 os.mkdir(Results_folder_name)
 logfile()
-path_dir = os.path.abspath( os.path.dirname( Results_folder_name ) )
+path_dir = os.path.abspath( os.path.dirname( Results_folder_name))
+prog_dir = os.path.abspath( os.path.dirname( sys.argv[0]))
 
 os.system("mv PDOR.log %s" %(Results_folder_name))
 
@@ -128,7 +134,7 @@ start_time = time.time()
 
 
 query_folder=args.query_folder
-db_sketch=args.db_sketch
+db_sketch=os.path.abspath(args.db_sketch)
 ref=args.ref
 threads=args.threads
 nearest=args.near
@@ -136,7 +142,8 @@ borders=args.borders
 contig_length=args.min_contig_length
 snp_spacing=args.snp_spacing
 bkg_folder=args.bkg_folder
-
+if args.meta is not None:
+    ABSmeta=os.path.abspath(args.meta)
 
 ref=os.path.abspath(ref)
 ABS_query_folder=os.path.abspath(query_folder)
@@ -152,13 +159,15 @@ genomes_query = [i.strip().split("/")[-1] for i in files]
 print ("\nChecking input formats...\n")
 
 
-### CHECK N 1 
+### CHECK N 1
 # REF has 1 contig
 
 num_cont_c1=int(os.popen('grep -c ">" %s' %(ref)).read().strip())
+
+
 if num_cont_c1>1:
 	sys.exit('\nERROR: the reference file needs to contain only one sequence!')
-	
+
 ### CHECK N 2
 # REF is in fasta format
 elif num_cont_c1==0:
@@ -190,19 +199,19 @@ for gen in genomes_query:
 for gen_names in genomes_query:
 	ext=gen_names.strip().split(".")[-1]
 	if (ext == "fa" or ext == "fasta") :
-		os.rename ("%s/%s" %(query_folder,gen_names), "%s/%s.fna" %(query_folder,gen_names.strip(ext).strip(".")))
+		os.rename ("%s/%s" %(ABS_query_folder,gen_names), "%s/%s.fna" %(ABS_query_folder,gen_names.strip(ext).strip(".")))
 
 
 NEAREST=[]
 for i in genomes_query:
-	cmd="mash dist %s/%s %s -p %i 2>/dev/null | sort -gr -k5 | head -n %i | cut -f2"  %(query_folder,i,db_sketch,threads,nearest)
+	cmd="mash dist %s/%s %s -p %i 2>/dev/null | sort -gr -k5 | head -n %i | cut -f2"  %(ABS_query_folder,i,db_sketch,threads,nearest)
 	NEAREST=NEAREST+(os.popen(cmd).read().strip().strip('\n').split('\n'))
 	#print (cmd)
 
 NEAREST=list(set(NEAREST))
 NEAREST=[i.split("/")[-1] for i in NEAREST]
 
-print ("Sketches completed...\n")
+print ("Sketches completed!\n")
 
 
 os.chdir(Results_folder_name)
@@ -227,7 +236,7 @@ os.mkdir("Background")
 
 if args.bkg_folder:
 	print ("Retrieving nearest genomes from the %s folder\n" %args.bkg_folder)
-	os.chdir("..")
+	os.chdir(path_dir)
 	background_folder=os.path.abspath(bkg_folder)
 	os.chdir(Results_folder_name)
 	for N in NEAREST:
@@ -238,11 +247,9 @@ else:
 	print ("Retrieving nearest genomes from the BV-BRC Database...\n")
 	for N in NEAREST:
 		N=N.replace(".fna","").replace(".fasta","").replace(".fa","")
-		print(N)
-		cmd='wget -qN "ftp://ftp.patricbrc.org/genomes/%s/%s.fna"' %(N,N)
-		print(cmd)
+		cmd = "wget -qN ftp://ftp.bvbrc.org/genomes/%s/%s.fna" %(N,N)
 		os.system(cmd)
-	os.chdir("..")
+	os.chdir(path_dir+"/"+Results_folder_name)
 
 os.mkdir("Align")
 os.mkdir("Analysis_Dataset")
@@ -289,7 +296,7 @@ aln_folder_size=os.popen("ls Align/ | wc -l").read().strip()
 
 os.system("rm -rf Background")
 
-check_res_vir(threads,"Analysis_Dataset")
+#check_res_vir(threads,"Analysis_Dataset") ####RESTORE AFTER change to AMFFinder
 
 Mummer_snp_call(threads,ref,"Align")
 
@@ -306,17 +313,17 @@ cmd="iqtree -s SNP_alignment.core.fasta -pre SNP_alignment -m MFP+GTR+ASC -bb 10
 os.system(cmd)
 
 
-os.system("Rscript ../Snpbreaker.R SNP_alignment.core.fasta %s" %(args.snp_threshold))
-os.system("Rscript ../annotated_tree.R SNP_alignment.treefile")
+os.system("Rscript %s/Snpbreaker.R SNP_alignment.core.fasta %s" %(prog_dir,args.snp_threshold))
+os.system("Rscript %s/annotated_tree.R SNP_alignment.treefile" %(prog_dir))
 
 
 
 if args.meta is not None:
 
-	os.system("Rscript ../contact_network.R ../%s" %(args.meta))
+	os.system("Rscript %s/contact_network.R %s" %(prog_dir,ABSmeta))
 
 
-os.chdir("..")
+os.chdir(path_dir)
 
 
 time=float(time.time() - start_time)
