@@ -70,21 +70,21 @@ https://drive.google.com/drive/folders/1lrr0tQn0RRwsHw54zRlZIMIhmdMnZi2Q
 ### Build your own sketch
 Run makepdordb.py script indicating the bacterial species. Here, any bacterial species can be indicated.
 ```
-python makepdordb.py download -s "Escherichia coli" 
+python3.8 makepdordb.py download -s "Escherichia coli" 
 ```
 You can also use makepdordb.py to update a pre-existing collection
 ```
-python makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder]
+python3.8 makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder]
 ```
 makepdordb.py uses assembly-stats to check which genomes of the BV-BRC database are already in your folder. This process can be performed using multiple threads (default= 1)
 
 ```
-python makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder] -t [number of threads to use when checking genomes]
+python3.8 makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder] -t [number of threads to use when checking genomes]
 ```
 Finally, makepdordb can be used to sketch a local collection of genomes
 
 ```
-python makepdordb.py sketch -f [path to the folder containing the local genomes]
+python3.8 makepdordb.py sketch -f [path to the folder containing the local genomes]
 ```
 
 
