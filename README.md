@@ -1,15 +1,15 @@
 [![DOI](https://zenodo.org/badge/455542613.svg)](https://zenodo.org/badge/latestdoi/455542613)
-# P-DOR - a Pipeline to Disentangling Outbreak Rapidly <img src='p-dor_logo.png' align="right" height="159" /> 
+# P-DOR - a Pipeline to Disentangle Outbreak Rapidly <img src='p-dor_logo.png' align="right" height="159" /> 
 
 ## Introduction
-P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detection and characterization, carried on by integratic clinical metadata and contextualizing the genomes of interest within a well curated global genomic database. 
+P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detection and characterization, carried on by integrating clinical metadata and contextualizing the genomes of interest within a well curated global genomic database. 
 
 ## Pipeline description
 
-1) The P-DOR framework keeps an updated database of all ESKAPE genomes from the [BV-BRC](https://www.bv-brc.org/) collection. Input genomes are joined with a background of the n most similar ones from the database. The selection is performed according to the k-mer distance via Mash. 
-2) Using the [Mummer](https://github.com/mummer4/mummer) package, each genome of the resulting dataset is aligned to a reference genome (Nucmer) and mutations are detected (show-snps). Then, an in-house Python script is used to call coreSNPs.
+1) The P-DOR framework keeps an updated dataset of all ESKAPE genomes from the [BV-BRC](https://www.bv-brc.org/) collection. This is called Source Dataset (SD). Input genomes are joined with the n most similar ones from the SD to form the Analysis Dataset (AD). The selection is performed according to the k-mer distance via Mash. 
+2) Using the [Mummer](https://github.com/mummer4/mummer) package, each genome of the AD is aligned to a reference genome (Nucmer) and mutations are detected (show-snps). Then, an in-house Python script is used to call coreSNPs.
 3) A Maximum Likelihood phylogeny is inferred using [iqtree](http://www.iqtree.org/). 
-4) Epidemiological clusters are assessed on the basis of coreSNPs distances using a threshold value to hypothesize the epidemiological relationship among the strains. This parameter can be set manually (e.g. according to previous studies) or computed by detecting the inflection point in the distribution of the coreSNP distances between all pairs of genomes. 
+4) Epidemiological clusters are assessed on the basis of coreSNPs distances using a threshold value to hypothesize the epidemiological relationship among the strains. This parameter must be set manually according to previous studies, or estimated according to the distribution of SNP distances among the AD genomes.
 5) A screening for resistance and virulence determinants is also performed through [AMRFinderPlus](https://www.ncbi.nlm.nih.gov/pathogens/antimicrobial-resistance/AMRFinder/).
 6) If patient metadata (i.e. ward of hospitalization, date of admission and discharge) are provived, the pipeline reconstruct the route of transmission  through a temporal and spatial representation of the outbreak.
 
@@ -27,7 +27,7 @@ conda activate P-DOR
 
 The command with default settings is:
 ```bash
-python3.8 P-DOR.py -q [query genome folder] -sd [background sketch file] -ref [reference genome] -snp_thr infl 
+python3.8 P-DOR.py -q [query genome folder] -sd [background sketch file] -ref [reference genome] -snp_thr 20 
 ```
 ### Options:
 ```
@@ -40,8 +40,7 @@ Input data:
   -sd <dirname>         Source Dataset (SD) sketch file
   -ref <filename>       reference genome
   -snp_thr SNP_THRESHOLD
-                        Threshold number of SNPs to define an epidemic cluster: choices are an integer number or type 'infl' to calculate it by the inflection point of SNPs
-                        distribution
+                        Threshold number of SNPs to define an epidemic cluster
 
 Additional arguments:
   -meta META            metadata file; see example file for formatting (default: None)
