@@ -8,6 +8,7 @@ dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_gnu
   - _r-mutex=1.0.1=anacondar_1
+  - assembly-stats=1.0.1=h9f5acd7_5
   - binutils_impl_linux-64=2.39=he00db2b_1
   - bioconductor-ggtree=3.6.0=r42hdfd78af_0
   - bioconductor-ggtreeextra=1.8.0=r42hdfd78af_0
@@ -89,8 +90,9 @@ dependencies:
   - ncurses=6.3=h27087fc_1
   - numpy=1.24.1=py38hab0fcb9_0
   - openssl=3.0.7=h0b41bf4_1
+  - pandas=1.5.3=py38hdc8b05c_0
   - pango=1.50.12=hd33c08f_1
-  - parallel=20221122=ha770c72_0
+  - parallel=20230122=ha770c72_0
   - pcre=8.45=h9c3ff4c_0
   - pcre2=10.40=hc3806b6_0
   - perl=5.32.1=2_h7f98852_perl5
@@ -117,7 +119,9 @@ dependencies:
   - pixman=0.40.0=h36c2ea0_0
   - pthread-stubs=0.4=h36c2ea0_1001
   - python=3.8.15=h4a9ceb5_0_cpython
+  - python-dateutil=2.8.2=pyhd8ed1ab_0
   - python_abi=3.8=3_cp38
+  - pytz=2022.7.1=pyhd8ed1ab_0
   - r-ape=5.6_2=r42h884c59f_0
   - r-aplot=0.1.9=r42hc72bb7e_0
   - r-base=4.2.2=ha7d60f8_3
@@ -178,7 +182,8 @@ dependencies:
   - r-yulab.utils=0.0.4=r42h6115d3f_0
   - readline=8.1.2=h0f457ee_0
   - sed=4.8=he412f7d_0
-  - setuptools=66.0.0=pyhd8ed1ab_0
+  - setuptools=66.1.1=pyhd8ed1ab_0
+  - six=1.16.0=pyh6c4a22f_0
   - sysroot_linux-64=2.12=he073ed8_15
   - tk=8.6.12=h27826a3_0
   - tktable=2.10=hb7b940f_3
@@ -198,4 +203,4 @@ dependencies:
   - xorg-xproto=7.0.31=h7f98852_1007
   - xz=5.2.6=h166bdaf_0
   - zlib=1.2.13=h166bdaf_4
-  - zstd=1.5.2=h3eb15da_5
+  - zstd=1.5.2=h3eb15da_6
