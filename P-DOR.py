@@ -245,7 +245,7 @@ if args.bkg_folder:
 		os.system(cmd)
 else:
 	os.chdir("Background")
-	print ("Retrieving nearest genomes from the PATRIC-DB...\n")
+	print ("Retrieving nearest genomes from the BV-BRC Database...\n")
 	for N in NEAREST:
 		N=N.replace(".fna","").replace(".fasta","").replace(".fa","")
 		print(N)
