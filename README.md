@@ -21,60 +21,45 @@ cd P-DOR/
 conda env create -f environment.yml
 conda activate P-DOR
 ```
-Also, you might need to install P3, the CLI tool to interact with the PATRIC-DB.
-You can follow the instructions at https://docs.patricbrc.org/cli_tutorial/cli_installation.html
 
-Quick and dirty code, for Debian users:
-```bash
-curl -O -L https://github.com/PATRIC3/PATRIC-distribution/releases/download/1.024/patric-cli-1.024.deb
-sudo dpkg -i patric-cli-1.024.deb
-sudo apt-get -f install
-```
-A full integration of the P3-API is coming soon
 
 ## Quick guide
 
 The command with default settings is:
 ```bash
-python P-DOR.py -q [query genome folder] -db [background sketch file] -ref [reference genome] -snp_thr infl 
+python3.8 P-DOR.py -q [query genome folder] -sd [background sketch file] -ref [reference genome] -snp_thr infl 
 ```
 ### Options:
-```bash
+```
+optional arguments:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
 
 Input data:
   -q <dirname>          query folder containing genomes in .fna format
-  -db <filename>         background sketch file - See "Pre-sketched databases" section 
+  -sd <dirname>         Source Dataset (SD) sketch file
   -ref <filename>       reference genome
   -snp_thr SNP_THRESHOLD
-                        Threshold number of SNPs to define an epidemic
-                        cluster: choices are an integer number or type 'infl'
-                        to calculate the threshold by the inflection point of SNPs
+                        Threshold number of SNPs to define an epidemic cluster: choices are an integer number or type 'infl' to calculate it by the inflection point of SNPs
                         distribution
 
 Additional arguments:
-  -meta META            metadata file; see example file for formatting
-                        (default: None)
-  -gff [GFF]            annotation file in gff format; if not specified
-                        (default) a dummy gff is generated (default: )
-  -bkg_folder [BKG_FOLDER]
-                        folder containing the genomes from which the
-                        background sketch was created; if not specified
-                        (default) nearest genomes are downloaded from the
-                        PATRIC-DB (default: )
-  -call {purple,mummer}
-                        Snps calling method (default: mummer)
-  -n <int>              Maximum nearest genomes from database (default: 20)
-  -t <int>              number of threads (default: 10)
-
+  -meta META            metadata file; see example file for formatting (default: None)
+  -sd_folder [BKG_FOLDER]
+                        folder containing the genomes from which the Source Dataset (SD) sketch was created (default: )
+  -borders <int>        length of the regions at the contig extremities from which SNPs are not called (default: 20)
+  -min_contig_length <int>
+                        minimum contig length to be retained for SNPs analysis (default: 500)
+  -snp_spacing <int>    Number of bases surrounding the mutated position to call a SNP (default: 10)
+  -n <int>              Maximum closest genomes from Source Dataset (SD) (default: 20)
+  -t <int>              number of threads (default: 2)
 ```
 ### Test run
 
 Test whether the pipeline generates all the expected outputs on your system, run the following command. 
 
 ```
-python P-DOR.py -q data/test_query -db data/sketches.msh -ref NJST258.fna -snp_thr infl -n 2 -bkg_folder data/test_DB/ -meta data/sample_metadata_table.txt
+python3.8 P-DOR.py -q data/test_query/ -sd data/sketches.msh -ref data/NJST258.fna -snp_thr 20 -sd_folder data/test_DB/ -t 2 -n 5 -meta data/sample_metadata_table.txt
 ```
 
 ### Pre-sketched databases
@@ -85,8 +70,24 @@ https://drive.google.com/drive/folders/1lrr0tQn0RRwsHw54zRlZIMIhmdMnZi2Q
 ### Build your own sketch
 Run makepdordb.py script indicating the bacterial species. Here, any bacterial species can be indicated.
 ```
-python makepdordb.py -s "Escherichia coli" 
+python makepdordb.py download -s "Escherichia coli" 
 ```
+You can also use makepdordb.py to update a pre-existing collection
+```
+python makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder]
+```
+makepdordb.py uses assembly-stats to check which genomes of the BV-BRC database are already in your folder. This process can be performed using multiple threads (default= 1)
+
+```
+python makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder] -t [number of threads to use when checking genomes]
+```
+Finally, makepdordb can be used to sketch a local collection of genomes
+
+```
+python makepdordb.py sketch -f [path to the folder containing the local genomes]
+```
+
+
 ## Output
 1) Summary of resistance and virulence detected.
 2) Core-SNPs alignment
