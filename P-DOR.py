@@ -28,7 +28,7 @@ def parse_args():
         requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=True)
         requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=True)
 
-        requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=True)
+        requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=True,metavar="<int>")
 
 
         optional = parser.add_argument_group('Additional arguments')
@@ -43,17 +43,7 @@ def parse_args():
         parser.add_argument('-v', '--version', action='version', version='P-DOR v1.0')
 
         args = parser.parse_args()
-        snp_threshold=args.snp_threshold
-        if snp_threshold is not None and snp_threshold.isdigit():
-              snp_threshold = int(snp_threshold)
 
-
-
-### CHECK N 1
-
-        elif snp_threshold!="infl":
-
-              sys.exit('\nERROR: to set the inflation point the following argument is required: -snp_thr infl\n')
         return args
 
 args = parse_args()
@@ -159,26 +149,26 @@ files = [f for ext in exts for f in glob.glob(os.path.join(ABS_query_folder, ext
 genomes_query = [i.strip().split("/")[-1] for i in files]
 #genomes_query=[i.replace(".fasta",".fna").replace(".fa",".fna") for i in genomes_query]
 
-
-
-### CHECK N 2
-
 print ("\nChecking input formats...\n")
 
-ref_file=open(ref,"r")
 
-for id in ref_file.readlines()[0:1]:
+### CHECK N 1 
+# REF has 1 contig
 
-      if id[0].strip()!=">":
-              sys.exit('\nERROR: the reference file need to be a FASTA file!!!')
-
-
+num_cont_c1=int(os.popen('grep -c ">" %s' %(ref)).read().strip())
+if num_cont_c1>1:
+	sys.exit('\nERROR: the reference file needs to contain only one sequence!')
+	
+### CHECK N 2
+# REF is in fasta format
+elif num_cont_c1==0:
+	sys.exit('\nERROR: the reference file needs to be a FASTA file!')
 
 ### CHECK N 3
 
 if db_sketch.split(".")[-1]!="msh":
 
-	sys.exit("\n\nERROR: check you sketch file!!!")
+	sys.exit("\n\nERROR: please check you sketch file!!!")
 
 
 ### CHECK N 4
@@ -312,15 +302,11 @@ os.system("rm -rf Align")
 
 print("Performing phylogenetic reconstruction...\n")
 
-#cmd="raxmlHPC-PTHREADS -f a -x 12345 -p 12345 -# 100 -m ASC_GTRGAMMA -s SNP_alignment.core.fasta -n coreSNPs_Phylo.nwk -T %i --no-bfgs --asc-corr=lewis" %(threads)
-#os.system(cmd)
-
 cmd="iqtree -s SNP_alignment.core.fasta -pre SNP_alignment -m MFP+GTR+ASC -bb 1000 -nt %i" %(threads)
 os.system(cmd)
 
 
 os.system("Rscript ../Snpbreaker.R SNP_alignment.core.fasta %s" %(args.snp_threshold))
-#os.system("Rscript ../annotated_tree.R RAxML_bipartitionsBranchLabels.coreSNPs_Phylo.nwk")
 os.system("Rscript ../annotated_tree.R SNP_alignment.treefile")
 
 
@@ -337,20 +323,6 @@ time=float(time.time() - start_time)
 hours=int(time/3600)
 minutes=((time/3600)-hours)*60
 
-#outF="Results_%s" + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-#os.makedirs(outF)
-
-
-
-
-"""
-os.makedirs("phylogeny outbreak_detection")
-os.system("mv RAxML_* phylogeny/")
-os.system("mv annotated_tree.svg phylogeny/"
-
-os.system("mv *csv outbreak_detection/")
-os.system("mv *svg outbreak_detection/")
-"""
 
 
 print ("\n\n\n\n\n\n\n\n\n")
