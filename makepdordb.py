@@ -98,7 +98,7 @@ def main():
 			for e in empties:
 				os.system("rm %s" %(e))
 			final_db_list = [s.strip('.fna') for s in os.listdir()]
-			print(("\n\nThe dataset folder contains a total number of %s genomes") % len(final_db_list))
+			print(("\n\nThe dataset folder contains a total of %s genomes") % len(final_db_list))
 			gc_filter=gc_filter.reset_index(drop=True)
 			final_db_tb = pd.DataFrame(final_db_list, columns=["genome_id"], dtype=str)
 			FinalTable = pd.merge(gc_filter, final_db_tb, how='inner')
