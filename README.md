@@ -6,11 +6,11 @@ P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detecti
 
 ## Pipeline description
 
-1) The P-DOR framework keeps an updated database of all ESKAPE genomes from the [PATRIC](https://www.patricbrc.org/) collection. Input genomes are joined with a background of the n most similar ones from the database. The selection is performed according to the k-mer distance via Mash. 
+1) The P-DOR framework keeps an updated database of all ESKAPE genomes from the [BV-BRC](https://www.bv-brc.org/) collection. Input genomes are joined with a background of the n most similar ones from the database. The selection is performed according to the k-mer distance via Mash. 
 2) Using the [Mummer](https://github.com/mummer4/mummer) package, each genome of the resulting dataset is aligned to a reference genome (Nucmer) and mutations are detected (show-snps). Then, an in-house Python script is used to call coreSNPs.
-3) A Maximum Likelihood phylogeny is inferred using [RAxML](https://cme.h-its.org/exelixis/web/software/raxml/) software. 
+3) A Maximum Likelihood phylogeny is inferred using [iqtree](http://www.iqtree.org/). 
 4) Epidemiological clusters are assessed on the basis of coreSNPs distances using a threshold value to hypothesize the epidemiological relationship among the strains. This parameter can be set manually (e.g. according to previous studies) or computed by detecting the inflection point in the distribution of the coreSNP distances between all pairs of genomes. 
-5) A screening for resistance and virulence determinants is also performed through [Abricate](https://github.com/tseemann/abricate).
+5) A screening for resistance and virulence determinants is also performed through [AMRFinderPlus](https://www.ncbi.nlm.nih.gov/pathogens/antimicrobial-resistance/AMRFinder/).
 6) If patient metadata (i.e. ward of hospitalization, date of admission and discharge) are provived, the pipeline reconstruct the route of transmission  through a temporal and spatial representation of the outbreak.
 
 ## Installation
