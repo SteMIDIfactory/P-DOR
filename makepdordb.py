@@ -160,7 +160,7 @@ def humansize(nbytes):
 
 def download_genome(dwlist):
 	for genome in dwlist:
-		cmd = ("wget -qN ftp://ftp.patricbrc.org/genomes/%s/%s.fna") % (genome, genome)
+		cmd = ("wget -qN ftp://ftp.bvbrc.org/genomes/%s/%s.fna") % (genome, genome)
 		os.system(cmd)
 
 def is_identical(list_a, list_b):
