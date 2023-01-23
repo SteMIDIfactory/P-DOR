@@ -28,7 +28,7 @@ def parse_args():
         requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=True)
         requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=True)
 
-        requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster: choices are an integer number or type 'infl' to calculate it by the inflection point of SNPs distribution ",required=True)
+        requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=True)
 
 
         optional = parser.add_argument_group('Additional arguments')
