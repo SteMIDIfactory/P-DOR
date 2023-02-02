@@ -66,14 +66,14 @@ def parse_species(sp):
     "Staphylococcus_pseudintermedius", "Streptococcus_agalactiae", "Streptococcus_pneumoniae", \
     "Streptococcus_pyogenes", "Vibrio_cholerae"]
     organism=""
-    #species
-    test="_".join(sp.strip().split())
-    if test in orglist:
-        organism=test
-    else:
-        test=sp.strip().split()[0]
+    if sp.strip()!="":
+        test="_".join(sp.strip().split())
         if test in orglist:
             organism=test
+        else:
+            test=sp.strip().split()[0]
+            if test in orglist:
+                organism=test
     return organism
 
 def check_res_vir(threads,AD_folder):
