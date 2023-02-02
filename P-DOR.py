@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 ## LIBRARIES
-
 import argparse
 from Bio import SeqIO
 import sys
@@ -12,55 +11,70 @@ import os
 from PDOR_lib import core_snps_2_fasta
 from PDOR_lib import core_snps_list_path
 
-
 ## FUNCTIONS
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(2)
 
 def parse_args():
 
-        parser=argparse.ArgumentParser(description='''This is the P-DOR help ''',usage='%(prog)s [options]',
-                prog='P-DOR.py',
-                formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-                argument_default=argparse.SUPPRESS,
-                epilog="According to the legend, P-dor is the Son of K-mer, but it also likes SNPs")
+    parser=MyParser(description='''This is the P-DOR help ''',usage='%(prog)s [options]',
+        prog='P-DOR.py',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        argument_default=argparse.SUPPRESS,
+        epilog="According to the legend, P-dor is the Son of K-mer, but it also likes SNPs")
+    requiredNamed = parser.add_argument_group('Input data')
+    requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=False, default=None)
+    requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=False, default=None)
+    requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=False, default=None)
+    requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=False,metavar="<int>", default=None)
 
-        requiredNamed = parser.add_argument_group('Input data')
-        requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=True)
-        requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=True)
-        requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=True)
+    optional = parser.add_argument_group('Additional arguments')
+    optional.add_argument("-amrf", help="if selected, P-DOR uses amrfinder-plus to search for antimicrobial resistance and virulence genes in the entire Analysis Dataset",action="store_true",required=False)
+    optional.add_argument("-meta", help="metadata file; see example file for formatting",default=None,required=False)
+    optional.add_argument("-sd_folder", help="folder containing the genomes from which the Source Dataset (SD) sketch was created",required=False,default="",dest="bkg_folder",nargs="?")
+    optional.add_argument("-borders", type=int, help="length of the regions at the contig extremities from which SNPs are not called",metavar="<int>",default=20)
+    optional.add_argument("-min_contig_length", type=int, help="minimum contig length to be retained for SNPs analysis",metavar="<int>",default=500)
+    optional.add_argument("-snp_spacing", type=int, help="Number of bases surrounding the mutated position to call a SNP",metavar="<int>",default=10)
+    optional.add_argument('-species', help="full species name of the genomes in the query folder. Needs to be written within single quotes, e.g.: -species 'Klebsiella pneumoniae'.\nThis option is used for a quicker and more precise gene search with AMRFinderPlus", default="")
+    optional.add_argument('-n', type=int,help='Maximum closest genomes from Source Dataset (SD)',metavar="<int>",dest="near",default=20)
+    optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=2)
+    parser.add_argument('-TEST', action= 'store_true',help='TEST MODE. Warning: this option overrides all other arguments', required=False)
+    parser.add_argument('-v', '--version', action='version', version='P-DOR v1.0')
 
-        requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=True,metavar="<int>")
-
-
-        optional = parser.add_argument_group('Additional arguments')
-        optional.add_argument("-meta", help="metadata file; see example file for formatting",default=None,required=False)
-        optional.add_argument("-sd_folder", help="folder containing the genomes from which the Source Dataset (SD) sketch was created",required=False,default="",dest="bkg_folder",nargs="?")
-        optional.add_argument("-borders", type=int, help="length of the regions at the contig extremities from which SNPs are not called",metavar="<int>",default=20)
-        optional.add_argument("-min_contig_length", type=int, help="minimum contig length to be retained for SNPs analysis",metavar="<int>",default=500)
-        optional.add_argument("-snp_spacing", type=int, help="Number of bases surrounding the mutated position to call a SNP",metavar="<int>",default=10)
-        optional.add_argument('-n', type=int,help='Maximum closest genomes from Source Dataset (SD)',metavar="<int>",dest="near",default=20)
-        optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=2)
-
-        parser.add_argument('-v', '--version', action='version', version='P-DOR v1.0')
-
-        args = parser.parse_args()
-
-        return args
-
-args = parse_args()
-
+    parser.set_defaults(amrf=False)
+    parser.set_defaults(TEST=False)
+    args = parser.parse_args()
+    if len(sys.argv)==1:
+        parser.action="version"
+    if not args.TEST and (args.query_folder is None or args.db_sketch is None or args.ref is None or args.snp_threshold is None):
+        parser.error("error: if not in TEST mode, the following arguments are required: -q, -sd, -ref, -snp_thr")
+    return args
 
 def logfile():
 	with open("PDOR.log","w") as p:
 		for arg, value in sorted(vars(args).items()):
 			p.write("%s\t%s\n" %(arg,value))
 
-
-
-"""
-### CHANGE TO AMRFINDERPLUS
-### UPDATE DB automatically
-### Check if abs paths are working
-
+def parse_species(sp):
+    orglist=["Acinetobacter_baumannii", "Burkholderia_cepacia", "Burkholderia_pseudomallei", \
+    "Campylobacter", "Clostridioides_difficile", "Enterococcus_faecalis", "Enterococcus_faecium", \
+    "Escherichia", "Klebsiella_oxytoca", "Klebsiella_pneumoniae", "Neisseria_gonorrhoeae", \
+    "Neisseria_meningitidis", "Pseudomonas_aeruginosa", "Salmonella", "Staphylococcus_aureus", \
+    "Staphylococcus_pseudintermedius", "Streptococcus_agalactiae", "Streptococcus_pneumoniae", \
+    "Streptococcus_pyogenes", "Vibrio_cholerae"]
+    organism=""
+    #species
+    test="_".join(sp.strip().split())
+    if test in orglist:
+        organism=test
+    else:
+        test=sp.strip().split()[0]
+        if test in orglist:
+            organism=test
+    return organism
 
 def check_res_vir(threads,AD_folder):
 	print ("Checking for resistance and virulence genes...")
@@ -68,36 +82,17 @@ def check_res_vir(threads,AD_folder):
 	path_res=path_dir+"/"+Results_folder_name+"/"+AD_folder
 	cmd=("cp %s %s") %(os.path.abspath(ref),path_res)
 	os.system(cmd)
-	os.system("conda env list >path_pdor")
-	path_inF=open("path_pdor","r")
-	for i in path_inF.readlines():
-		i=i.strip().split()
-
-		try:
-			if i[1].strip()=="*":
-				abricate_db_path=i[2].strip()+"/db/all_db"
-				abs_path=i[2].strip()+"/db"
-
-				cmd="mkdir -p %s" %abricate_db_path
-				os.system(cmd)
-				cmd="cat %s/*/*sequences | perl -pe 's/[[:^ascii:]]//g' >%s/all_db/sequences" %(abs_path,abs_path)
-				os.system(cmd)
-				cmd="makeblastdb -in %s/sequences -title all_db -dbtype nucl -hash_index >/dev/null" %abricate_db_path
-				os.system(cmd)
-
-				os.system("ls *fna | parallel -j %i 'abricate {} --minid 80 --mincov 60 --db all_db >{}.report 2>/dev/null'" %(threads))
-				os.system("cat *report >summary_resistance_virulence")
-				os.system("rm *report")
-				rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
-				os.system(rm_ref)
-				os.system("mv summary_resistance_virulence %s/" %(path_dir))
-
-
-		except IndexError:
-
-			pass
-"""
-
+	os.system("amrfinder --update")
+	organism=parse_species(args.species)
+	if organism=="":
+		os.system("ls *fna | parallel -j %i 'amrfinder -n {} --plus --threads 1 -o {}.txt --name {}'" %(threads))
+	else:
+		os.system("ls *fna | parallel -j %i 'amrfinder -n {} --plus --threads 1 -o {}.txt -O %s --name {}'" %(threads,organism))
+	os.system("cat *fna.txt >summary_resistance_virulence.txt")
+	os.system("rm *fna.txt")
+	rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
+	os.system(rm_ref)
+	os.system("mv summary_resistance_virulence.txt %s/%s" %(path_dir,Results_folder_name))
 
 def Mummer_snp_call(threads,ref,Align_folder):
 	#os.rename(".fasta",".fna").replace(".fa","fna")
@@ -114,24 +109,43 @@ def Mummer_snp_call(threads,ref,Align_folder):
                 sys.exit("\nERROR: Core-SNPs alignment not present, check your input files!\n")
 
 
-
-
 ### MAIN
 args = parse_args()
-
 time_now=datetime.datetime.now()
 datestamp=time_now.strftime("%Y-%m-%d_%H-%M-%S")
+start_time = time.time()
+prog_dir = os.path.abspath( os.path.dirname( sys.argv[0]))
 Results_folder_name="Results_%s" %(datestamp)
+
+##CHECK IF TEST MODE
+if args.TEST==True:
+    Results_folder_name="Test_%s" %(datestamp)
+    args.amrf=False
+    args.bkg_folder='%s/data/test_DB/' %(prog_dir)
+    args.borders=20
+    args.db_sketch='%s/data/sketches.msh' %(prog_dir)
+    args.meta='%s/data/sample_metadata_table.txt' %(prog_dir)
+    args.min_contig_length=500
+    args.near=5
+    args.query_folder='%s/data/test_query/' %(prog_dir)
+    args.ref='%s/data/NJST258.fna' %(prog_dir)
+    args.snp_spacing=10
+    args.snp_threshold='20'
+    args.species='Klebsiella pneumoniae'
+    args.threads=2
+    print("\n\nTesting AMRFinderPlus function on a single genome")
+    os.system("amrfinder --update")
+    organism=parse_species(args.species)
+    os.system("amrfinder -n %s --plus --threads %i -o test.amrftest -O %s --name REF" %(args.ref,args.threads,organism))
+    os.system("head -n2 test.amrftest")
+    os.system("rm test.amrftest")
+
 os.mkdir(Results_folder_name)
 logfile()
 path_dir = os.path.abspath( os.path.dirname( Results_folder_name))
-prog_dir = os.path.abspath( os.path.dirname( sys.argv[0]))
+
 
 os.system("mv PDOR.log %s" %(Results_folder_name))
-
-
-start_time = time.time()
-
 
 query_folder=args.query_folder
 db_sketch=os.path.abspath(args.db_sketch)
@@ -152,87 +166,53 @@ exts=['*.fasta', '*.fna', '*.fa']
 
 files = [f for ext in exts for f in glob.glob(os.path.join(ABS_query_folder, ext))]
 
-
 genomes_query = [i.strip().split("/")[-1] for i in files]
 #genomes_query=[i.replace(".fasta",".fna").replace(".fa",".fna") for i in genomes_query]
 
 print ("\nChecking input formats...\n")
-
-
 ### CHECK N 1
 # REF has 1 contig
-
 num_cont_c1=int(os.popen('grep -c ">" %s' %(ref)).read().strip())
-
-
 if num_cont_c1>1:
 	sys.exit('\nERROR: the reference file needs to contain only one sequence!')
-
 ### CHECK N 2
 # REF is in fasta format
 elif num_cont_c1==0:
 	sys.exit('\nERROR: the reference file needs to be a FASTA file!')
-
 ### CHECK N 3
-
 if db_sketch.split(".")[-1]!="msh":
-
 	sys.exit("\n\nERROR: please check you sketch file!!!")
-
-
 ### CHECK N 4
-
-
 for gen in genomes_query:
-
 	if gen.endswith(".fasta") or gen.endswith(".fna") or gen.endswith(".fa"):
 		n_genomes=len(genomes_query)
 		print ("Detected %i genomes in the query folder\n" %n_genomes)
 		break
-
 	else:
 		sys.exit("\n\nERROR: your query genome folder does not contain fasta files!!!")
-
-
-
 
 for gen_names in genomes_query:
 	ext=gen_names.strip().split(".")[-1]
 	if (ext == "fa" or ext == "fasta") :
 		os.rename ("%s/%s" %(ABS_query_folder,gen_names), "%s/%s.fna" %(ABS_query_folder,gen_names.strip(ext).strip(".")))
 
-
 NEAREST=[]
 for i in genomes_query:
 	cmd="mash dist %s/%s %s -p %i 2>/dev/null | sort -gr -k5 | head -n %i | cut -f2"  %(ABS_query_folder,i,db_sketch,threads,nearest)
 	NEAREST=NEAREST+(os.popen(cmd).read().strip().strip('\n').split('\n'))
-	#print (cmd)
 
 NEAREST=list(set(NEAREST))
 NEAREST=[i.split("/")[-1] for i in NEAREST]
-
 print ("Sketches completed!\n")
 
-
 os.chdir(Results_folder_name)
-
-
-
-
 with open("query_genome_list.txt","w") as q:
 	for i in genomes_query:
 		q.write("%s\n" %(i))
-
 with open("backgroud_genome_list.txt","w") as q:
 	for i in NEAREST:
 		q.write("%s\n" %(i))
-
-
 os.mkdir("Background")
-
-
-
-
 
 if args.bkg_folder:
 	print ("Retrieving nearest genomes from the %s folder\n" %args.bkg_folder)
@@ -254,7 +234,6 @@ else:
 os.mkdir("Align")
 os.mkdir("Analysis_Dataset")
 
-
 for i in glob.glob("Background/*"):
 	name=i.strip().split("/")[-1]
 	oF=open("Align/DB_%s" %(name),"w")
@@ -272,8 +251,6 @@ for i in glob.glob("Background/*"):
 		os.system("rm Align/DB_%s" %(name))
 	else:
 		os.system("cp %s Analysis_Dataset/DB_%s" %(i,name))
-
-
 
 for i in glob.glob("%s/*" %(ABS_query_folder)):
 	name=i.strip().split("/")[-1]
@@ -293,13 +270,12 @@ for i in glob.glob("%s/*" %(ABS_query_folder)):
 		os.system("cp %s Analysis_Dataset/%s" %(i,name))
 
 aln_folder_size=os.popen("ls Align/ | wc -l").read().strip()
-
 os.system("rm -rf Background")
 
-#check_res_vir(threads,"Analysis_Dataset") ####RESTORE AFTER change to AMFFinder
+if args.amrf==True:
+    check_res_vir(threads,"Analysis_Dataset")
 
 Mummer_snp_call(threads,ref,"Align")
-
 os.mkdir("SNPs")
 os.system("mv Align/*.snp SNPs/")
 snp_num=os.popen("ls SNPs/*.snp | wc -l").read().strip()
@@ -308,30 +284,21 @@ if int(snp_num)!=int(aln_folder_size):
 os.system("rm -rf Align")
 
 print("Performing phylogenetic reconstruction...\n")
-
 cmd="iqtree -s SNP_alignment.core.fasta -pre SNP_alignment -m MFP+GTR+ASC -bb 1000 -nt %i" %(threads)
 os.system(cmd)
 
-
 os.system("Rscript %s/Snpbreaker.R SNP_alignment.core.fasta %s" %(prog_dir,args.snp_threshold))
-os.system("Rscript %s/annotated_tree.R SNP_alignment.treefile" %(prog_dir))
-
-
-
+if args.amrf==True:
+    os.system("Rscript %s/annotated_tree_amr.R SNP_alignment.treefile summary_resistance_virulence.txt" %(prog_dir))
+else:
+    print("\n\n\nI still don't have this script, sorry")
 if args.meta is not None:
-
 	os.system("Rscript %s/contact_network.R %s" %(prog_dir,ABSmeta))
-
-
 os.chdir(path_dir)
-
 
 time=float(time.time() - start_time)
 hours=int(time/3600)
 minutes=((time/3600)-hours)*60
-
-
-
 print ("\n\n\n\n\n\n\n\n\n")
 print ("####################\n")
 print ("Analysis completed in %i hours and %f minutes" %(hours,minutes))
