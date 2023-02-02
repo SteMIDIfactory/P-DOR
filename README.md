@@ -33,16 +33,17 @@ python3.8 P-DOR.py -q [query genome folder] -sd [background sketch file] -ref [r
 ```
 optional arguments:
   -h, --help            show this help message and exit
+  -TEST                 TEST MODE. Warning: this option overrides all other arguments (default: False)
   -v, --version         show program's version number and exit
 
 Input data:
-  -q <dirname>          query folder containing genomes in .fna format
-  -sd <dirname>         Source Dataset (SD) sketch file
-  -ref <filename>       reference genome
-  -snp_thr SNP_THRESHOLD
-                        Threshold number of SNPs to define an epidemic cluster
+  -q <dirname>          query folder containing genomes in .fna format (default: None)
+  -sd <dirname>         Source Dataset (SD) sketch file (default: None)
+  -ref <filename>       reference genome (default: None)
+  -snp_thr <int>        Threshold number of SNPs to define an epidemic cluster (default: None)
 
 Additional arguments:
+  -amrf                 if selected, P-DOR uses amrfinder-plus to search for antimicrobial resistance and virulence genes in the entire Analysis Dataset (default: False)
   -meta META            metadata file; see example file for formatting (default: None)
   -sd_folder [BKG_FOLDER]
                         folder containing the genomes from which the Source Dataset (SD) sketch was created (default: )
@@ -50,6 +51,7 @@ Additional arguments:
   -min_contig_length <int>
                         minimum contig length to be retained for SNPs analysis (default: 500)
   -snp_spacing <int>    Number of bases surrounding the mutated position to call a SNP (default: 10)
+  -species SPECIES      full species name of the genomes in the query folder. Needs to be written within single quotes, e.g.: -species 'Klebsiella pneumoniae'. This option is used for a quicker and more precise gene search with AMRFinderPlus (default: )
   -n <int>              Maximum closest genomes from Source Dataset (SD) (default: 20)
   -t <int>              number of threads (default: 2)
 ```
@@ -58,7 +60,7 @@ Additional arguments:
 Test whether the pipeline generates all the expected outputs on your system, run the following command. 
 
 ```
-python3.8 P-DOR.py -q data/test_query/ -sd data/sketches.msh -ref data/NJST258.fna -snp_thr 20 -sd_folder data/test_DB/ -t 2 -n 5 -meta data/sample_metadata_table.txt
+python3.8 P-DOR.py -TEST
 ```
 
 ### Pre-sketched databases
