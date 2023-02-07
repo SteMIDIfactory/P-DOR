@@ -288,10 +288,9 @@ cmd="iqtree -s SNP_alignment.core.fasta -pre SNP_alignment -m MFP+GTR+ASC -bb 10
 os.system(cmd)
 
 os.system("Rscript %s/Snpbreaker.R SNP_alignment.core.fasta %s" %(prog_dir,args.snp_threshold))
-if args.amrf==True:
-    os.system("Rscript %s/annotated_tree_amr.R SNP_alignment.treefile summary_resistance_virulence.txt" %(prog_dir))
-else:
-    print("\n\n\nI still don't have this script, sorry")
+if args.amrf==False:
+    os.system("cp %s/data/fakeresvir.txt summary_resistance_virulence.txt" %(prog_dir))
+os.system("Rscript %s/annotated_tree_amr.R SNP_alignment.treefile summary_resistance_virulence.txt" %(prog_dir))
 if args.meta is not None:
 	os.system("Rscript %s/contact_network.R %s" %(prog_dir,ABSmeta))
 os.chdir(path_dir)
