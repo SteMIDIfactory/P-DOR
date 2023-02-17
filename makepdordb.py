@@ -1,18 +1,22 @@
 #!/usr/bin/python3
 """Make P-DOR database -  a well curated genomic database for the species you choose"""
 
-import argparse
+import argparse, os, sys, select, copy
 import numpy as np
-import os
 import pandas as pd
 pd.options.mode.chained_assignment = None
-import sys
-import select
-import copy
 from datetime import datetime
+from urllib import request
 
 def main():
 	args = parseArgs().parse_args()
+	mash_threads=args.threads
+	max_threads=os.popen("grep -c '^processor' /proc/cpuinfo").read().strip()
+	if mash_threads>int(max_threads)/2:
+		mash_threads=int(round(int(max_threads)/2,0))
+		print("\n\nWARNING: The number of threads allocated for sketching genomes was automatically lowered to %i" %(mash_threads))
+		print("Please bear in mind that MASH could still malfunction if other intensive processes are running on your machine.\nThis is due to a knonw MASH bug. Plase see https://github.com/marbl/Mash/issues/140\n\n")
+
 	if args.subcommand=="download":
 	#create a tmp directory to store intermediate results
 		if not os.path.exists(".tmp"):
@@ -106,9 +110,9 @@ def main():
 
 
 ### MASH SKETCH
-			os.system("ls *.fna > sketches")
-			os.system('mash sketch -l sketches -p %i' %(args.threads))
-			os.system('rm sketches')
+			os.system("ls *.fna > sketches_list")
+			os.system('mash sketch -l sketches_list -p %i -o sketches.msh' %(mash_threads))
+			os.system('rm sketches_list')
 			os.system('mv sketches.msh ../.')
 
 
@@ -127,7 +131,7 @@ def main():
 	elif args.subcommand=="sketch":
 		os.chdir(args.folder)
 		os.system("find . -maxdepth 1 -type f -size +100k -ls | grep '.fna' | cut -f2 -d"/" > sketches")
-		os.system('mash sketch -l sketches -p %i' %(args.threads))
+		os.system('mash sketch -l sketches -p %i' %(mash_threads))
 		os.system('mv sketches.msh ../.')
 		print("...Done! Now you can run the P-DOR analysis: python P-DOR.py -q [query genome folder] -sd sketches.msh -ref [reference genome] -snp_thr infl")
 
@@ -160,8 +164,9 @@ def humansize(nbytes):
 
 def download_genome(dwlist):
 	for genome in dwlist:
-		cmd = ("wget -qN ftp://ftp.bvbrc.org/genomes/%s/%s.fna") % (genome, genome)
-		os.system(cmd)
+		request.urlretrieve("ftp://ftp.bvbrc.org/genomes/%s/%s.fna" %(genome, genome),"%s.fna" %(genome))
+
+
 
 def is_identical(list_a, list_b):
 	if len(list_a) != len(list_b):
