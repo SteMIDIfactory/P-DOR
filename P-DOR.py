@@ -25,11 +25,11 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         argument_default=argparse.SUPPRESS,
         epilog="According to the legend, P-dor is the Son of K-mer, but it also likes SNPs")
-    requiredNamed = parser.add_argument_group('Input data')
-    requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=False, default=None)
-    requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=False, default=None)
-    requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=False, default=None)
-    requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=False,metavar="<int>", default=None)
+    requiredNamed = parser.add_argument_group('Input data (all required, except when in TEST mode)')
+    requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=False)
+    requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=False)
+    requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=False)
+    requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=False,metavar="<int>")
 
     optional = parser.add_argument_group('Additional arguments')
     optional.add_argument("-amrf", help="if selected, P-DOR uses amrfinder-plus to search for antimicrobial resistance and virulence genes in the entire Analysis Dataset",action="store_true",required=False)
