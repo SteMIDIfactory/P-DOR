@@ -65,15 +65,23 @@ clust<-clust[which(!is.na(clust$cluster)),]
 moving<-unique(select(mm,PATIENT_ID,WARD_DATE_ENTRY, WARD_DATE_EXIT,WARD2))
 isol<-select(mm,ISOLATION_DATE,PATIENT_ID, status)
 ###
-pal_ward<-c("#e8177d","#7c44ad","#0072B2","#336a8f" ,"#2b9900" ,"#B3B3B3")
+
+
+ncols<-nrow(table(moving$WARD2))
+pal_ward <- colorRampPalette(brewer.pal(5, "Set2"))(ncols)
 ward<-pal_ward[1:length(levels(factor(moving$WARD2)))]
 names(ward) <- levels(factor(moving$WARD2))
+
+
+#pal_ward<-c("#e8177d","#7c44ad","#0072B2","#336a8f" ,"#2b9900" ,"#B3B3B3")
+#ward<-pal_ward[1:length(levels(factor(moving$WARD2)))]
+#names(ward) <- levels(factor(moving$WARD2))
 
 
 suppressWarnings(contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end=WARD_DATE_EXIT, aes(WARD_DATE_ENTRY, PATIENT_ID)) +
   theme_classic()+
   geom_segment(data = moving,mapping = aes(color=WARD2, group=PATIENT_ID,
-                   y=PATIENT_ID,xend=WARD_DATE_EXIT,yend=PATIENT_ID),alpha = .4, size=10)+
+                   y=PATIENT_ID,xend=WARD_DATE_EXIT,yend=PATIENT_ID),alpha = .7, size=10)+
   scale_x_datetime(date_breaks='7 day',date_labels = "%Y-%m-%d")+
   geom_point(data=isol, aes(ISOLATION_DATE,PATIENT_ID, shape=status),
              #position=position_jitter(h=0.02),
@@ -85,8 +93,8 @@ suppressWarnings(contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end
         legend.title =element_text(size=20),
         axis.title.x = element_text(hjust = 1,size=15))+
   labs(shape="condition")+ scale_linetype(guide = "none") +ggnewscale::new_scale_color() +
-  geom_line(data=clust, aes(ISOLATION_DATE,PATIENT_ID, group=cluster, linetype=cluster,color=cluster),size=0.9,alpha=1)+
-  scale_color_manual(values = rev(brewer.pal(length(levels(factor(clust$cluster))), "Paired")))
+  geom_line(data=clust, aes(ISOLATION_DATE,PATIENT_ID, group=cluster, linetype=cluster,color=cluster),size=1.2,alpha=1)+
+  scale_color_manual(values = brewer.pal(length(levels(factor(clust$cluster))), "Set2"))
 
 )
 
@@ -97,5 +105,5 @@ var_height<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$y
 var_width<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$x$get_labels())
 
 ggsave(plot = contact_network_plot, filename = "contact_network_plot.svg",
-       width = var_width*1.5, height=var_height*1.5 , units = "cm",limitsize = F,scale = 2)
+       width = var_width*1.2, height=var_height*1.2 , units = "cm",limitsize = F,scale = 1)
 
