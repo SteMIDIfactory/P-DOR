@@ -37,7 +37,7 @@ if (length(check_cluster_file)>0) {
   cluster_file$cluster<-as.character(cluster_file$cluster)
   cluster_file$STRAIN_ID<-as.character(cluster_file$STRAIN_ID)
   
-  cat("Possible outbreak detected...")
+  cat("\n\nPossible outbreak detected!\n\nGenerating annotated phylogenetic tree...\n\n")
   
 } else {
   
@@ -248,8 +248,10 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   # rr$STRAIN_ID<-NULL
   # 
   cluster_hm_levels <-res_hm + new_scale_fill()
+
+
   
-  suppressWarnings(
+  suppressMessages(
     
   
   hm_cluster <- gheatmap(cluster_hm_levels,rr, offset = 3, width=0.02,font.size = 5)+
@@ -259,6 +261,7 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   
   )
+
   ggsave(hm_cluster, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
          units = "cm",scale=1.2,limitsize = F)
   
@@ -420,4 +423,3 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   
 }
-
