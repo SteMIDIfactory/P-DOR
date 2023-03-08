@@ -113,7 +113,7 @@ Once the adjusted threshold is estimated, P-DOR can be run again to obtain a bet
 
 5) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters.
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/annotated_tree_resvir_cluster.svg)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/annotated_tree_resvir_clusters.svg)
 
 
 6) Timeline of hospitalized patient and the bacterial samples. The timeline indicates samples isolation based on colonization and infection. The samples are linked according the their core-SNPs distance.
