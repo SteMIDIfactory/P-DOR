@@ -83,7 +83,7 @@ makepdordb.py uses assembly-stats to check which genomes of the BV-BRC database 
 python3.8 makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder] -t [number of threads to use when checking genomes]
 ```
 Finally, makepdordb can be used to sketch a local collection of genomes
-
+  
 ```
 python3.8 makepdordb.py sketch -f [path to the folder containing the local genomes]
 ```
@@ -94,7 +94,7 @@ python3.8 makepdordb.py sketch -f [path to the folder containing the local genom
 2) Core-SNPs alignment
 3) Core‐SNPs histogram distribution between genome pairs. The dashed bar is set according to the threshold indicating the epidemiological clusters.
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/output/SNP_histogram_first_run.png)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_first_run.png)
 
 4) Heatmap and graph network representing the core-SNPs distances between all pairs of genomes.
 5) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters.
