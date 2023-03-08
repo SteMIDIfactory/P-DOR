@@ -100,11 +100,14 @@ Epidemiological clusters are assessed on the basis of the topology of the phylog
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_first_run.png)
  
-In this case the threshold was set to 15 SNPs, which is slightly less than the actual inflection point. 
+In this case the threshold was set to 15 SNPs, which is slightly less than the actual inflection point.  
+
+Here, the threshold can be adjusted after the preliminary run of the pipeline according to the inflection point that is around 25 SNPs, a more indicated threshold to be set in the analysis. 
+
+Once the adjusted threshold is estimated, P-DOR can be run again to obtain a better assessment of the epidemiological clusters.
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_first_run.png)
 
-Here, the threshold can be adjusted after the preliminary run of the pipeline according to the inflection point that is around 25 SNPs, a more indicated threshold to assess the epidemiological clusters.
 
 
 4) Heatmap and graph network representing the core-SNPs distances between all pairs of genomes.
