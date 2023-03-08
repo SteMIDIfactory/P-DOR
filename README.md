@@ -91,7 +91,9 @@ python3.8 makepdordb.py sketch -f [path to the folder containing the local genom
 
 ## Output
 1) Summary of resistance and virulence detected.
+
 2) Core-SNPs alignment
+
 3) Core‐SNPs histogram distribution between genome pairs. The dashed bar is set according to the threshold indicating the epidemiological clusters.
 
 Epidemiological clusters are assessed on the basis of the topology of the phylogeny and of coreSNP distances using a threshold value, which can be set according to the literature or to the SNP-distance distribution in the dataset (inflection point). 
@@ -104,8 +106,11 @@ In this case the threshold was set to 15 SNPs, which is slightly less than the a
 
 Here, the threshold can be adjusted after the preliminary run of the pipeline according to the inflection point that is around 25 SNPs, a more indicated threshold to assess the epidemiological clusters.
 
+
 4) Heatmap and graph network representing the core-SNPs distances between all pairs of genomes.
+
 5) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters.
+
 6) Timeline of hospitalized patient and the bacterial samples. The timeline indicates samples isolation based on colonization and infection. The samples are linked according the their core-SNPs distance.
 
 ## Coming soon
