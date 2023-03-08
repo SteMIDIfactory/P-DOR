@@ -111,15 +111,18 @@ Once the adjusted threshold is estimated, P-DOR can be run again to obtain a bet
 
 4) Heatmap and graph network representing the core-SNPs distances between the query genomes (AD) vs all pairs of genomes (AD+SD)
 
-![alt text] https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_heatmap_query_vs_all.svg
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_heatmap_query_vs_all.svg)
 
 
 5) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters.
 
-![alt text] https://github.com/SteMIDIfactory/P-DOR/blob/master/output/annotated_tree_resvir_cluster.svg
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/annotated_tree_resvir_cluster.svg)
 
 
 6) Timeline of hospitalized patient and the bacterial samples. The timeline indicates samples isolation based on colonization and infection. The samples are linked according the their core-SNPs distance.
+
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/contact_network_plot.svg)
+
 
 ## Coming soon
 - Implementation of the [SCOTTI](https://github.com/Taming-the-BEAST/SCOTTI-Tutorial) tool for the reconstruction of the chain of transmission via Bayesian inference.
