@@ -109,7 +109,10 @@ Once the adjusted threshold is estimated, P-DOR can be run again to obtain a bet
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_first_run.png)
 
 
-4) Heatmap and graph network representing the core-SNPs distances between all pairs of genomes.
+4) Heatmap and graph network representing the core-SNPs distances between the query genomes (AD) vs all pairs of genomes (AD+SD)
+
+![alt text] https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_heatmap_query_vs_all.svg
+
 
 5) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters.
 
