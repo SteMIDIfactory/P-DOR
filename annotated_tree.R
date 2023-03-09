@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
   
 })
 
-  
+
 args=commandArgs(trailingOnly = TRUE)
 snp_phylotree<-args[1]
 # summary_resistance_virulence<-args[2]
@@ -82,11 +82,13 @@ rr<-rr[order(rr$cluster),]
 
 ncols<-nrow(table(rr$cluster))
 
-
-
 rr$cluster<-ifelse(is.na(rr$cluster),"Sporadic",rr$cluster)
 
 cols<-suppressWarnings(brewer.pal(n = nrow(table(rr$cluster)), name = "Dark2"))
+
+if (nrow(table(rr$cluster))==1){
+  cols<-cols[1]
+}
 
 color_vec <- cols
 names(color_vec) <- unique(rr$cluster)
@@ -109,15 +111,15 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   
   colnames(rr)<-" "
-
+  
   
   suppressMessages(
     
-  hm_cluster <- gheatmap(pp,rr, offset = 2, width=0.02,font.size = labsize)+
-    scale_fill_manual(values = color_vec,na.translate = F,name="Cluster")+
-    scale_y_continuous(limits=c(-1, NA))+theme(legend.key.size = unit(nclust*0.5, 'cm'),
-                                               legend.spacing.y = unit(nclust*0.5,"cm"))
-  
+    hm_cluster <- gheatmap(pp,rr, offset = 2, width=0.02,font.size = labsize)+
+      scale_fill_manual(values = color_vec,na.translate = F,name="Cluster")+
+      scale_y_continuous(limits=c(-1, NA))+theme(legend.key.size = unit(nclust*0.5, 'cm'),
+                                                 legend.spacing.y = unit(nclust*0.5,"cm"))
+    
   )
   
   ggsave(hm_cluster, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
@@ -234,34 +236,34 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   rownames(rr)<-rr$STRAIN_ID
   rr$STRAIN_ID<-NULL
- 
+  
   suppressMessages(
     
-  res_hm <- gheatmap(pp,summary_resvir, offset = 5, width=ncol(res_mtab1)*0.3/16, font.size=nclust, colnames_position= "top",
-                     colnames_angle = 90, colnames_offset_y = -0.2, hjust = 0) +
-    scale_y_continuous(limits=c(-1, NA))+
-    scale_fill_manual(breaks=c("AMR/STRESS", "VIR"),
-                      values=c("#6495ED", "firebrick"), name="Category",na.translate = F)
-  
+    res_hm <- gheatmap(pp,summary_resvir, offset = 5, width=ncol(res_mtab1)*0.3/16, font.size=nclust, colnames_position= "top",
+                       colnames_angle = 90, colnames_offset_y = -0.2, hjust = 0) +
+      scale_y_continuous(limits=c(-1, NA))+
+      scale_fill_manual(breaks=c("AMR/STRESS", "VIR"),
+                        values=c("#6495ED", "firebrick"), name="Category",na.translate = F)
+    
   )
   # rownames(rr)<-rr$STRAIN_ID
   # rr$STRAIN_ID<-NULL
   # 
   cluster_hm_levels <-res_hm + new_scale_fill()
-
-
+  
+  
   
   suppressMessages(
     
-  
-  hm_cluster <- gheatmap(cluster_hm_levels,rr, offset = 3, width=0.02,font.size = 5)+
-    scale_fill_manual(values = color_vec,na.translate = F,name="Cluster")+
-    scale_y_continuous(limits=c(-1, NA))+theme(legend.key.size = unit(nclust*0.5, 'cm'),
-                                               legend.spacing.y = unit(nclust*0.5,"cm"))
-  
-  
+    
+    hm_cluster <- gheatmap(cluster_hm_levels,rr, offset = 3, width=0.02,font.size = 5)+
+      scale_fill_manual(values = color_vec,na.translate = F,name="Cluster")+
+      scale_y_continuous(limits=c(-1, NA))+theme(legend.key.size = unit(nclust*0.5, 'cm'),
+                                                 legend.spacing.y = unit(nclust*0.5,"cm"))
+    
+    
   )
-
+  
   ggsave(hm_cluster, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
          units = "cm",scale=1.2,limitsize = F)
   
@@ -280,15 +282,15 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   rownames(rr)<-rr$STRAIN_ID
   rr$STRAIN_ID<-NULL
- 
+  
   suppressMessages(
     
-     
-  hm_cluster <- gheatmap(pp,rr, offset = 2, width=0.02,font.size = labsize)+
-    scale_fill_manual(values = color_vec,na.translate = F,name="Cluster")+
-    scale_y_continuous(limits=c(-1, NA))+theme(legend.key.size = unit(nclust*0.5, 'cm'),
-                                               legend.spacing.y = unit(nclust*0.5,"cm"))
-  
+    
+    hm_cluster <- gheatmap(pp,rr, offset = 2, width=0.02,font.size = labsize)+
+      scale_fill_manual(values = color_vec,na.translate = F,name="Cluster")+
+      scale_y_continuous(limits=c(-1, NA))+theme(legend.key.size = unit(nclust*0.5, 'cm'),
+                                                 legend.spacing.y = unit(nclust*0.5,"cm"))
+    
   )
   
   ggsave(hm_cluster, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
@@ -404,15 +406,15 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   rownames(rr)<-rr$STRAIN_ID
   rr$STRAIN_ID<-NULL
-
+  
   suppressMessages(
-  
-  res_hm <- gheatmap(pp,summary_resvir, offset = 5, width=ncol(res_mtab1)*0.3/16, font.size=nclust, colnames_position= "top",
-                     colnames_angle = 90, colnames_offset_y = -0.2, hjust = 0) +
-    scale_y_continuous(limits=c(-1, NA))+
-    scale_fill_manual(breaks=c("AMR/STRESS", "VIR"),
-                      values=c("#6495ED", "firebrick"), name="Category",na.translate = F)
-  
+    
+    res_hm <- gheatmap(pp,summary_resvir, offset = 5, width=ncol(res_mtab1)*0.3/16, font.size=nclust, colnames_position= "top",
+                       colnames_angle = 90, colnames_offset_y = -0.2, hjust = 0) +
+      scale_y_continuous(limits=c(-1, NA))+
+      scale_fill_manual(breaks=c("AMR/STRESS", "VIR"),
+                        values=c("#6495ED", "firebrick"), name="Category",na.translate = F)
+    
   )
   
   ggsave(res_hm, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
