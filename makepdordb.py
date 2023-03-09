@@ -130,7 +130,9 @@ def main():
 #### ONLY SKETCH MODE
 	elif args.subcommand=="sketch":
 		os.chdir(args.folder)
-		os.system("ls * > sketches")
+		numberFNA = str((os.popen("ls *.fna | wc -l").read().strip()))
+		print("You have %s FNA files in your folder\nWARNING: makepdordb uses only files .fna\n" %(numberFNA))
+		os.system("ls *.fna > sketches")
 		os.system('mash sketch -l sketches -p %i' %(mash_threads))
 		os.system('mv sketches.msh ../.')
 		print("...Done! Now you can run the P-DOR analysis: python P-DOR.py -q [query genome folder] -sd sketches.msh -ref [reference genome] -snp_thr infl")
