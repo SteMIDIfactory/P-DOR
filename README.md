@@ -106,7 +106,7 @@ Here, the threshold can be adjusted after the preliminary run of the pipeline ac
 
 Once the adjusted threshold is estimated, P-DOR can be run again to obtain a better assessment of the epidemiological clusters.
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_first_run.png)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_adjusted.png)
 
 
 4) Heatmap and graph network representing the core-SNPs distances between the query genomes (AD) vs all pairs of genomes (AD+SD)
