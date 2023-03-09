@@ -130,7 +130,7 @@ def main():
 #### ONLY SKETCH MODE
 	elif args.subcommand=="sketch":
 		os.chdir(args.folder)
-		os.system("find . -maxdepth 1 -type f -size +100k -ls | grep '.fna' | cut -f2 -d"/" > sketches")
+		os.system("ls * > sketches_list")
 		os.system('mash sketch -l sketches -p %i' %(mash_threads))
 		os.system('mv sketches.msh ../.')
 		print("...Done! Now you can run the P-DOR analysis: python P-DOR.py -q [query genome folder] -sd sketches.msh -ref [reference genome] -snp_thr infl")
