@@ -1,5 +1,5 @@
 [![DOI](https://zenodo.org/badge/455542613.svg)](https://zenodo.org/badge/latestdoi/455542613)
-# P-DOR - a Pipeline to Disentangle Outbreaks Rapidly <img src='p-dor_logo.png' align="right" height="159" /> 
+# P-DOR - a Pipeline to Disentangle Outbreaks Rapidly <img src='sample_images/p-dor_logo.png' align="right" height="159" /> 
 
 ## Introduction
 P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detection and characterization, carried on by integrating clinical metadata and contextualizing the genomes of interest within a well curated global genomic database. 
@@ -111,7 +111,7 @@ Epidemiological clusters are assessed on the basis of the topology of the phylog
 
 Here is the Core-SNP distribution after setting the threshold at 15 and running P-DOR for the first time on the dataset.
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_first_run.png)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/SNP_histogram_first_run.png)
  
 In this case the threshold is slightly lower than the actual inflection point.  
 
@@ -119,21 +119,21 @@ After the preliminary run, P-DOR should be run again using a different threshold
 
 Here is the Core-SNP distribution histogram, after P-DOR is run the second time
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_adjusted.png)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/SNP_histogram_adjusted.png)
 
 
 3) Heatmap and graph network representing the core-SNP distances between the query genomes (AD) vs all pairs of genomes (AD+SD) (Filenames: SNP_heatmap_query_vs_all.svg and SNP_clusters_manual_threshold_20_snps.svg)
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_heatmap_query_vs_all.svg)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/SNP_heatmap_query_vs_all.svg)
 
 
 4) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters (Filename: annotated_tree.pdf)
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/annotated_tree_resvir_cluster.svg)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/annotated_tree_resvir_cluster.svg)
 
 6) Timeline of hospitalized patient and the bacterial samples. The timeline indicates samples isolation based on colonization and infection. The samples are linked according the their core-SNPs distance (Filename: contact_network_plot.svg)
 
-![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/contact_network_plot.svg)
+![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/contact_network_plot.svg)
 
 
 ## Coming soon
