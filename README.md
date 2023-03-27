@@ -34,6 +34,11 @@ The command with default settings is:
 ```bash
 python3.8 P-DOR.py -q [query genome folder] -sd [background sketch file] -ref [reference genome] -snp_thr 20 
 ```
+-q is used to indicate the path to the folder containing the genomes that should be analyzed
+-sd is the path to the .msh file containing the Source Dataset
+-ref is the path to the genome that should be used as reference for alignment. WARNING: in this version of P-DOR the reference genome file must contain only one sequence in fasta format
+-snp_thr is the threshold value of the Core-SNP distance between two genomes that belong to the same epidemic cluster
+
 ### Options:
 ```
 optional arguments:
@@ -74,7 +79,7 @@ Pre-sketched ESKAPE genomes are available at:
 https://drive.google.com/drive/folders/1lrr0tQn0RRwsHw54zRlZIMIhmdMnZi2Q
 ```
 ### Build your own sketch
-Run makepdordb.py script indicating the bacterial species. Here, any bacterial species can be indicated.
+Run makepdordb.py script indicating the bacterial species. Here, any bacterial species can be used.
 ```
 python3.8 makepdordb.py download -s "Escherichia coli" 
 ```
@@ -87,7 +92,7 @@ makepdordb.py uses assembly-stats to check which genomes of the BV-BRC database 
 ```
 python3.8 makepdordb.py download -s "Escherichia coli" -f [path to the pre-existing folder] -t [number of threads to use when checking genomes]
 ```
-Finally, makepdordb can be used to sketch a local collection of genomes
+Finally, makepdordb can be used to sketch a local collection of genomes (CAUTION: genomes must be in fasta format with the .fna file extension)
   
 ```
 python3.8 makepdordb.py sketch -f [path to the folder containing the local genomes]
@@ -95,11 +100,12 @@ python3.8 makepdordb.py sketch -f [path to the folder containing the local genom
 
 
 ## Output
-1) Summary of resistance and virulence detected.
 
-2) Core-SNP alignment
+The Output files are contained in a folder named "Results_" and date and time when P-DOR was launched. The main Outputs are:
 
-3) Core‐SNP distribution between genome pairs. The dashed bar corresponds to the threshold set in input.
+1) Core-SNP alignment (Filename: SNP_alignment.core.fasta)
+
+2) Core‐SNP distribution between genome pairs. The dashed bar corresponds to the threshold set in input (Filename: SNP_frequency_manual_threshold_15_snps.svg, where 15 is the Core-SNP threshold set by the user)
 
 Epidemiological clusters are assessed on the basis of the topology of the phylogeny and of coreSNP distances using a threshold value, which can be set according to the literature or to the SNP-distance distribution in the dataset. Core-SNP distances in bacterial pathogens are known to follow a distribution with multiple peaks. The peak at the lowest SNP number corresponds with the distances within the same epidemic cluster (David et al. 2019). Hence, you should aim to set your SNP threshold value at the inflection point following the first peak.
 
@@ -116,23 +122,23 @@ Here is the Core-SNP distribution histogram, after P-DOR is run the second time
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_adjusted.png)
 
 
-4) Heatmap and graph network representing the core-SNP distances between the query genomes (AD) vs all pairs of genomes (AD+SD)
+3) Heatmap and graph network representing the core-SNP distances between the query genomes (AD) vs all pairs of genomes (AD+SD) (Filenames: SNP_heatmap_query_vs_all.svg and SNP_clusters_manual_threshold_20_snps.svg)
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_heatmap_query_vs_all.svg)
 
 
-5) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters.
+4) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters (Filename: annotated_tree.pdf)
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/annotated_tree_resvir_cluster.svg)
 
-
-6) Timeline of hospitalized patient and the bacterial samples. The timeline indicates samples isolation based on colonization and infection. The samples are linked according the their core-SNPs distance.
+6) Timeline of hospitalized patient and the bacterial samples. The timeline indicates samples isolation based on colonization and infection. The samples are linked according the their core-SNPs distance (Filename: contact_network_plot.svg)
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/contact_network_plot.svg)
 
 
 ## Coming soon
-- Implementation of the [SCOTTI](https://github.com/Taming-the-BEAST/SCOTTI-Tutorial) tool for the reconstruction of the chain of transmission via Bayesian inference.
+- Possibility to use a reference genome that is split into multiple contigs/chromosomes
+- Implementation of the [SCOTTI](https://github.com/Taming-the-BEAST/SCOTTI-Tutorial) tool for the reconstruction of the chain of transmission via Bayesian inference
 - Genome assembly, both short and long reads
 - Genome characterization: MLST
 - Utilization of secondary SNP alignments (e.g. codon 3rd position SNP alignment, intergenic SNP alignment) for downstream analyses
