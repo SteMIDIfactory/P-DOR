@@ -6,7 +6,7 @@ P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detecti
 
 ## Pipeline description
 
-1) The P-DOR framework keeps an updated dataset of all ESKAPE genomes from the [BV-BRC](https://www.bv-brc.org/) collection. This is called Source Dataset (SD). Input genomes are joined with the n most similar ones from the SD to form the Analysis Dataset (AD). The selection is performed according to the k-mer distance via Mash. 
+1) The P-DOR framework keeps an updated dataset of all ESKAPE genomes from the [BV-BRC](https://www.bv-brc.org/) collection. This is called Source Dataset (SD) and it is formatted as a single MASH sketch file (.msh). Input genomes are joined with the n most similar ones from the SD to form the Analysis Dataset (AD). The selection is performed according to the k-mer distance via Mash. 
 2) Using the [Mummer](https://github.com/mummer4/mummer) package, each genome of the AD is aligned to a reference genome (Nucmer) and mutations are detected (show-snps). Then, an in-house Python script is used to call coreSNPs.
 3) A Maximum Likelihood phylogeny is inferred using [iqtree](http://www.iqtree.org/). 
 4) Epidemiological clusters are assessed on the basis of coreSNPs distances using a threshold value to hypothesize the epidemiological relationship among the strains. This parameter must be set manually according to previous studies, or estimated according to the distribution of SNP distances among the AD genomes.
@@ -14,6 +14,11 @@ P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detecti
 6) If patient metadata (i.e. ward of hospitalization, date of admission and discharge) are provived, the pipeline reconstruct the route of transmission  through a temporal and spatial representation of the outbreak.
 
 ## Installation
+###Requirements
+- Linux-based OS
+- conda 
+
+###Installation command
 
 ```bash
 git clone https://github.com/SteMIDIfactory/P-DOR.git
@@ -92,24 +97,26 @@ python3.8 makepdordb.py sketch -f [path to the folder containing the local genom
 ## Output
 1) Summary of resistance and virulence detected.
 
-2) Core-SNPs alignment
+2) Core-SNP alignment
 
-3) Core‐SNPs histogram distribution between genome pairs. The dashed bar is set according to the threshold indicating the epidemiological clusters.
+3) Core‐SNP distribution between genome pairs. The dashed bar corresponds to the threshold set in input.
 
-Epidemiological clusters are assessed on the basis of the topology of the phylogeny and of coreSNP distances using a threshold value, which can be set according to the literature or to the SNP-distance distribution in the dataset (inflection point). 
+Epidemiological clusters are assessed on the basis of the topology of the phylogeny and of coreSNP distances using a threshold value, which can be set according to the literature or to the SNP-distance distribution in the dataset. Core-SNP distances in bacterial pathogens are known to follow a distribution with multiple peaks. The peak at the lowest SNP number corresponds with the distances within the same epidemic cluster (David et al. 2019). Hence, you should aim to set your SNP threshold value at the inflection point following the first peak.
+
+Here is the Core-SNP distribution after setting the threshold at 15 and running P-DOR for the first time on the dataset.
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_first_run.png)
  
-In this case the threshold was set to 15 SNPs, which is slightly less than the actual inflection point.  
+In this case the threshold is slightly lower than the actual inflection point.  
 
-Here, the threshold can be adjusted after the preliminary run of the pipeline according to the inflection point that is around 25 SNPs, a more indicated threshold to be set in the analysis. 
+After the preliminary run, P-DOR should be run again using a different threshold value, estimated according to the inflection point. In this case, it is around 25 SNPs. 
 
-Once the adjusted threshold is estimated, P-DOR can be run again to obtain a better assessment of the epidemiological clusters.
+Here is the Core-SNP distribution histogram, after P-DOR is run the second time
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_histogram_adjusted.png)
 
 
-4) Heatmap and graph network representing the core-SNPs distances between the query genomes (AD) vs all pairs of genomes (AD+SD)
+4) Heatmap and graph network representing the core-SNP distances between the query genomes (AD) vs all pairs of genomes (AD+SD)
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/output/SNP_heatmap_query_vs_all.svg)
 
