@@ -15,11 +15,11 @@ P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detecti
 6) If patient metadata (i.e. ward of hospitalization, date of admission and discharge) are provived, the pipeline reconstruct the route of transmission  through a temporal and spatial representation of the outbreak.
 
 ## Installation
-###Requirements
+### Requirements
 - Linux-based OS
 - conda 
 
-###Installation command
+### Installation command
 
 ```bash
 git clone https://github.com/SteMIDIfactory/P-DOR.git
