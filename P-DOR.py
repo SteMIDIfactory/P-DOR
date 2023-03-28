@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3.8
 
 ## LIBRARIES
 import argparse
@@ -20,27 +20,26 @@ class MyParser(argparse.ArgumentParser):
 
 def parse_args():
 
-    parser=MyParser(description='''This is the P-DOR help ''',usage='%(prog)s [options]',
+    parser=MyParser(usage='%(prog)s -q QUERY_FOLDER -sd SD_SKETCH -ref REFERENCE_GENOME -snp_thr SNP_THRESHOLD [options]',
         prog='P-DOR.py',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         argument_default=argparse.SUPPRESS,
         epilog="According to the legend, P-dor is the Son of K-mer, but it also likes SNPs")
     requiredNamed = parser.add_argument_group('Input data (all required, except when in TEST mode)')
-    requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=False)
-    requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=False)
-    requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=False)
-    requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=False,metavar="<int>")
+    requiredNamed.add_argument('-q', help='query folder containing genomes in .fna format',metavar="<dirname>",dest="query_folder",type=str,required=False,default=None)
+    requiredNamed.add_argument("-sd", help="Source Dataset (SD) sketch file",metavar="<dirname>",dest="db_sketch", required=False,default=None)
+    requiredNamed.add_argument("-ref", help="reference genome", dest="ref", metavar="<filename>",required=False,default=None)
+    requiredNamed.add_argument("-snp_thr", dest="snp_threshold", help="Threshold number of SNPs to define an epidemic cluster",required=False,metavar="<int>",default=None)
 
     optional = parser.add_argument_group('Additional arguments')
-    optional.add_argument("-amrf", help="if selected, P-DOR uses amrfinder-plus to search for antimicrobial resistance and virulence genes in the entire Analysis Dataset",action="store_true",required=False)
-    optional.add_argument("-meta", help="metadata file; see example file for formatting",default=None,required=False)
-    optional.add_argument("-sd_folder", help="folder containing the genomes from which the Source Dataset (SD) sketch was created",required=False,default="",dest="bkg_folder",nargs="?")
-    optional.add_argument("-borders", type=int, help="length of the regions at the contig extremities from which SNPs are not called",metavar="<int>",default=20)
-    optional.add_argument("-min_contig_length", type=int, help="minimum contig length to be retained for SNPs analysis",metavar="<int>",default=500)
-    optional.add_argument("-snp_spacing", type=int, help="Number of bases surrounding the mutated position to call a SNP",metavar="<int>",default=10)
-    optional.add_argument('-species', help="full species name of the genomes in the query folder. Needs to be written within single quotes, e.g.: -species 'Klebsiella pneumoniae'.\nThis option is used for a quicker and more precise gene search with AMRFinderPlus", default="")
-    optional.add_argument('-n', type=int,help='Maximum closest genomes from Source Dataset (SD)',metavar="<int>",dest="near",default=20)
-    optional.add_argument('-t', type=int,help='number of threads',metavar="<int>",dest="threads",default=2)
+    optional.add_argument("-amrf", help="if selected, P-DOR uses amrfinder-plus to search for antimicrobial resistance and virulence genes in the entire Analysis Dataset [Default: %(default)s]",action="store_true",required=False)
+    optional.add_argument("-meta", help="metadata file; see example file for formatting [Default: %(default)s]",default=None,required=False)
+    optional.add_argument("-sd_folder", help="folder containing the genomes from which the Source Dataset (SD) sketch was created [Default: P-DOR downloads the background genomes from BV-BRC]",required=False,default="",dest="bkg_folder",nargs="?")
+    optional.add_argument("-borders", type=int, help="length of the regions at the contig extremities from which SNPs are not called [Default: %(default)s]",metavar="<int>",default=20)
+    optional.add_argument("-min_contig_length", type=int, help="minimum contig length to be retained for SNPs analysis [Default: %(default)s]",metavar="<int>",default=500)
+    optional.add_argument("-snp_spacing", type=int, help="Number of bases surrounding the mutated position to call a SNP [Default: %(default)s]",metavar="<int>",default=10)
+    optional.add_argument('-species', help="full species name of the genomes in the query folder [Default: %(default)s]\nNeeds to be written within single quotes, e.g.: -species 'Klebsiella pneumoniae'.\nThis option is used for a quicker and more precise gene search with AMRFinderPlus", default="")
+    optional.add_argument('-n', type=int,help='Maximum closest genomes from Source Dataset (SD) [Default: %(default)s]',metavar="<int>",dest="near",default=20)
+    optional.add_argument('-t', type=int,help='number of threads [Default: %(default)s]',metavar="<int>",dest="threads",default=2)
     parser.add_argument('-TEST', action= 'store_true',help='TEST MODE. Warning: this option overrides all other arguments', required=False)
     parser.add_argument('-v', '--version', action='version', version='P-DOR v1.0')
 
@@ -48,9 +47,10 @@ def parse_args():
     parser.set_defaults(TEST=False)
     args = parser.parse_args()
     if len(sys.argv)==1:
-        parser.action="version"
-    if not args.TEST and (args.query_folder is None or args.db_sketch is None or args.ref is None or args.snp_threshold is None):
-        parser.error("error: if not in TEST mode, the following arguments are required: -q, -sd, -ref, -snp_thr")
+        parser.print_help()
+        sys.exit()
+    elif (not args.TEST and (args.query_folder is None or args.db_sketch is None or args.ref is None or args.snp_threshold is None)):
+        parser.error("\n\nERROR!! If not in TEST mode, the following arguments are required: -q, -sd, -ref, -snp_thr\n\n")
     return args
 
 def logfile():
@@ -110,6 +110,7 @@ def Mummer_snp_call(threads,ref,Align_folder):
 
 
 ### MAIN
+print("\n\nBEHOLD! This is P-DOR!\n\n")
 args = parse_args()
 time_now=datetime.datetime.now()
 datestamp=time_now.strftime("%Y-%m-%d_%H-%M-%S")
@@ -236,7 +237,7 @@ os.mkdir("Analysis_Dataset")
 
 for i in glob.glob("Background/*"):
 	name=i.strip().split("/")[-1]
-	oF=open("Align/BD_%s" %(name),"w")
+	oF=open("Align/DB_%s" %(name),"w")
 	origsize=0
 	trimmedsize=0
 	for x in SeqIO.parse(i,"fasta"):
@@ -248,9 +249,9 @@ for i in glob.glob("Background/*"):
 	oF.close()
 	if trimmedsize<float(origsize)*0.90:
 		print("\nDatabase genome %s was too short after contig polishing and was excluded from the Analysis Dataset (AD)" %(name))
-		os.system("rm Align/BD_%s" %(name))
+		os.system("rm Align/DB_%s" %(name))
 	else:
-		os.system("cp %s Analysis_Dataset/BD_%s" %(i,name))
+		os.system("cp %s Analysis_Dataset/DB_%s" %(i,name))
 
 for i in glob.glob("%s/*" %(ABS_query_folder)):
 	name=i.strip().split("/")[-1]
@@ -299,12 +300,29 @@ os.system("Rscript %s/annotated_tree.R SNP_alignment.treefile" %(prog_dir))
 
 if args.meta is not None:
 	os.system("Rscript %s/contact_network.R %s" %(prog_dir,ABSmeta))
+
+###ORGANIZE OUTPUT
+os.mkdir("Other_output_files")
+os.system("mv SNPs Other_output_files/SNPs")
+os.system("mv Analysis_Dataset Other_output_files/Analysis_Dataset/")
+os.system("mv SNP_alignment* Other_output_files/")
+
+os.system("mv backgroud_genome_list.txt Other_output_files/")
+os.system("mv clusters_manual_threshold_20_snps.csv Other_output_files/")
+os.system("mv query_genome_list.txt Other_output_files/")
+os.system("mv snp_distance_matrix.tsv Other_output_files/")
+os.system("mv SNP_genomes.list Other_output_files/")
+os.system("mv SNP_positions.core.list Other_output_files/")
+if args.amrf==True:
+    os.system("mv summary_resistance_virulence.txt Other_output_files/")
+
 os.chdir(path_dir)
 
 time=float(time.time() - start_time)
 hours=int(time/3600)
 minutes=((time/3600)-hours)*60
-print ("\n\n\n\n\n\n\n\n\n")
+print ("\n\n\n\n")
 print ("####################\n")
 print ("Analysis completed in %i hours and %f minutes" %(hours,minutes))
+print ("Results are stored in folder %s/%s" %(path_dir,Results_folder_name))
 print ("####################\n")
