@@ -31,7 +31,7 @@ dist_matrix<-as.matrix(dist.dna(seq, "N"))
 # seq<-read.dna("SNP_alignment.core.fasta", format="fasta")
 # dist_matrix<-as.matrix(dist.dna(seq, "N"))
 ###
-query_genomes<-as.vector(grep("DB_",rownames(dist_matrix),value = TRUE, invert = TRUE))
+query_genomes<-as.vector(grep("BD_",rownames(dist_matrix),value = TRUE, invert = TRUE))
 #ref_genome<-as.vector(grep("REF_",rownames(dist_matrix),value = TRUE))
 #query_genomes<-query_genomes[-which(query_genomes %in% ref_genome)]
 query_genomes<-dist_matrix[query_genomes,query_genomes] #relativa ai genomi di outbreak di studio
