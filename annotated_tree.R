@@ -64,7 +64,7 @@ colnames(add)<-"STRAIN_ID"
 query_out_lab<-c()
 for (i in cluster_file$cluster){
   cc<-cluster_file[which(cluster_file$cluster==i),]
-  if (length(grep("BD",cc$STRAIN_ID,invert = T,value = T))>=1)
+  if (length(grep("BD_",cc$STRAIN_ID,invert = T,value = T))>=1)
     query_out_lab<-unique(c(query_out_lab,i))
   
 }
