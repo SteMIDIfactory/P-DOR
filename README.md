@@ -35,10 +35,10 @@ The command with default settings is:
 ```bash
 python3.8 P-DOR.py -q [query genome folder] -sd [background sketch file] -ref [reference genome] -snp_thr 20 
 ```
--q is used to indicate the path to the folder containing the genomes that should be analyzed
--sd is the path to the .msh file containing the Source Dataset
--ref is the path to the genome that should be used as reference for alignment. WARNING: in this version of P-DOR the reference genome file must contain only one sequence in fasta format
--snp_thr is the threshold value of the Core-SNP distance between two genomes that belong to the same epidemic cluster
+-q is used to indicate the path to the folder containing the genomes that should be analyzed<p>
+-sd is the path to the .msh file containing the Source Dataset<p>
+-ref is the path to the genome that should be used as reference for alignment. WARNING: in this version of P-DOR the reference genome file must contain only one sequence in fasta format<p>
+-snp_thr is the threshold value of the Core-SNP distance between two genomes that belong to the same epidemic cluster<p>
 
 ### Options:
 ```
