@@ -50,7 +50,7 @@ cluster_file<-read.csv(list.files(pattern = "csv"),sep='')
 cluster_file$cluster<-as.character(cluster_file$cluster)
 cluster_file$STRAIN_ID<-as.character(cluster_file$STRAIN_ID)
 
-out<-grep("DB",cluster_file$STRAIN_ID,value = T)
+out<-grep("BD_",cluster_file$STRAIN_ID,value = T)
 
 cluster_file<-cluster_file[-which(cluster_file$STRAIN_ID %in% out),]
 
