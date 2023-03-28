@@ -25,7 +25,7 @@ def main():
 		species = '"' + args.species + '"'
 		now = datetime.now()
 		dt_string = now.strftime("_%d-%m-%Y")
-
+		speciesOUT="_".join(str(args.species).split())
 ### DOWNLOADING and reading last release of BV-BRC and filtering based on genome length, number of contigs and GC content
 	#whole_list : last release of bvbrc genome_metadata
 
@@ -113,13 +113,11 @@ def main():
 			os.system("ls *.fna > sketches_list")
 			os.system('mash sketch -l sketches_list -p %i -o sketches.msh' %(mash_threads))
 			os.system('rm sketches_list')
-			os.system('mv sketches.msh ../.')
-
-
+			os.system('mv sketches.msh ../%s.msh' %(speciesOUT))
 			os.system('rm -r ../.tmp')
 
 
-			print("...Done! Now you can run the P-DOR analysis")
+			print("...Done! The SD sketch file is stored as %s.msh\nThe SD genomes are stored in folder %s\nNow you can run the P-DOR analysis!" %(speciesOUT,name_folder))
 
 	#Exiting
 		else:
@@ -135,7 +133,7 @@ def main():
 		os.system("ls *.fna > sketches")
 		os.system('mash sketch -l sketches -p %i' %(mash_threads))
 		os.system('mv sketches.msh ../.')
-		print("...Done! Now you can run the P-DOR analysis: python P-DOR.py -q [query genome folder] -sd sketches.msh -ref [reference genome] -snp_thr infl")
+		print("\n...Done! The SD sketch file is stored as sketches.msh\nNow you can run the P-DOR analysis!")
 
 
 
