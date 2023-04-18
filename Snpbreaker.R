@@ -25,26 +25,19 @@ snp_alignment <- args[1]
 snp_threshold <- logfile[which(logfile$V1=="snp_threshold"),"V2"]
 
 ###
+
 seq<-read.dna(snp_alignment, format="fasta")
 dist_matrix<-as.matrix(dist.dna(seq, "N"))
 
-# seq<-read.dna("SNP_alignment.core.fasta", format="fasta")
-# dist_matrix<-as.matrix(dist.dna(seq, "N"))
-###
-query_genomes<-as.vector(grep("BD_",rownames(dist_matrix),value = TRUE, invert = TRUE))
-#ref_genome<-as.vector(grep("REF_",rownames(dist_matrix),value = TRUE))
-#query_genomes<-query_genomes[-which(query_genomes %in% ref_genome)]
-query_genomes<-dist_matrix[query_genomes,query_genomes] #relativa ai genomi di outbreak di studio
-###
-dist_matrix_query_vs_all<-dist_matrix[rownames(query_genomes),]
-
-svg(filename = "SNP_heatmap_query_vs_all.svg",
-    width = 10, height = 10, pointsize = 8)
-query_vs_background<-pheatmap(dist_matrix_query_vs_all,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100),fontsize=ncol(dist_matrix)*5/100)
+svg(filename = "SNP_heatmap.svg",
+    width = ncol(dist_matrix)*0.7, height = ncol(dist_matrix)*0.7, pointsize = 8)
+query_vs_background<-pheatmap(dist_matrix,color = colorRampPalette(brewer.pal(n = 7, name ="RdYlBu"))(100),fontsize=ncol(dist_matrix)*0.3,cellwidth=ncol(dist_matrix)*0.5,
+	cellheight=ncol(dist_matrix)*0.5)
 invisible (dev.off())
 
+
 write.csv(dist_matrix,"snp_distance_matrix.tsv",sep='\t')
-###
+
 
 if (snp_threshold !="infl"){
   snp_threshold<-as.integer(as.character(snp_threshold))
