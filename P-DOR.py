@@ -237,7 +237,7 @@ os.mkdir("Analysis_Dataset")
 
 for i in glob.glob("Background/*"):
 	name=i.strip().split("/")[-1]
-	oF=open("Align/DB_%s" %(name),"w")
+	oF=open("Align/BD_%s" %(name),"w")
 	origsize=0
 	trimmedsize=0
 	for x in SeqIO.parse(i,"fasta"):
@@ -249,9 +249,9 @@ for i in glob.glob("Background/*"):
 	oF.close()
 	if trimmedsize<float(origsize)*0.90:
 		print("\nDatabase genome %s was too short after contig polishing and was excluded from the Analysis Dataset (AD)" %(name))
-		os.system("rm Align/DB_%s" %(name))
+		os.system("rm Align/BD_%s" %(name))
 	else:
-		os.system("cp %s Analysis_Dataset/DB_%s" %(i,name))
+		os.system("cp %s Analysis_Dataset/BD_%s" %(i,name))
 
 for i in glob.glob("%s/*" %(ABS_query_folder)):
 	name=i.strip().split("/")[-1]
