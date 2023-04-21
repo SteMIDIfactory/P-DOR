@@ -75,10 +75,8 @@ python3.8 P-DOR.py -TEST
 ```
 
 ### Pre-sketched databases
-Pre-sketched ESKAPE genomes are available at:
-```
-https://drive.google.com/drive/folders/1lrr0tQn0RRwsHw54zRlZIMIhmdMnZi2Q
-```
+Pre-sketched ESKAPE genomes are available [here!](https://drive.google.com/drive/folders/1K7PzZb9TmvhtAmLVzIujDnFTlT7CNjQi?usp=sharing)
+
 ### Build your own sketch
 Run makepdordb.py script indicating the bacterial species. Here, any bacterial species can be used.
 ```
