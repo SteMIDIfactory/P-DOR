@@ -308,7 +308,7 @@ os.system("mv Analysis_Dataset Other_output_files/Analysis_Dataset/")
 os.system("mv SNP_alignment* Other_output_files/")
 
 os.system("mv backgroud_genome_list.txt Other_output_files/")
-os.system("mv clusters_manual_threshold_20_snps.csv Other_output_files/")
+os.system("mv clusters_manual_threshold_%s_snps.csv Other_output_files/" %(args.snp_threshold))
 os.system("mv query_genome_list.txt Other_output_files/")
 os.system("mv snp_distance_matrix.tsv Other_output_files/")
 os.system("mv SNP_genomes.list Other_output_files/")
