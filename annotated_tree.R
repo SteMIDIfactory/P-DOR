@@ -126,11 +126,14 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
          units = "cm",scale=1.2,limitsize = F)
   
   
-  ########### CLUSTER YES NO RESISTANCE
+  ########### CLUSTER YES  RESISTANCE YES
   
 } else if (file.exists("summary_resistance_virulence.txt") && length(unique(rr$cluster)>=1)) {
   
   report<-read.delim("summary_resistance_virulence.txt",sep='\t')
+  #kpc<-grep("bla",report$Gene.symbol,value = T)
+  #report<-report[which(report$Gene.symbol %in% kpc),]
+  #report$Name<-gsub("BD_","",report$Name)
   
   refname<-unique(report[-which(report$Name %in% tree$tip.label),"Name"])
   
@@ -154,10 +157,10 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   report$Name<-gsub(".fna","",report$Name)
   report$Name<-gsub(".fasta","",report$Name)
   
-  refname<-unique(report[-which(report$Name %in% tree$tip.label),"Name"])
-  
-  report$Name<-ifelse(report$Name==refname,report$Contig.id,report$Name)
-  
+  # refname<-unique(report[-which(report$Name %in% tree$tip.label),"Name"])
+  # 
+  # report$Name<-ifelse(report$Name==refname,report$Contig.id,report$Name)
+  # 
   report_res<-report[which(report$COVERAGE=="100.00" & report$IDENTITY=="100.00"),]
   report_res<-report_res[which(report_res$Element.type=="AMR" | report_res$Element.type=="STRESS"),]
   report_vir<-report[which(as.numeric(report$COVERAGE)>80 & as.numeric(report$IDENTITY)>80),]
@@ -190,6 +193,8 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   res_mtab1[res_mtab1=="1"]<-"AMR/STRESS"
   
+  head(res_mtab1[,"blaKPC-2"])
+  
   vir_tab<-table(report_vir$Name,report_vir$Gene.symbol)
   vir_mtab<-as.matrix(vir_tab)
   vir_mtab[vir_mtab>1]<-1
@@ -215,15 +220,20 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   if (dim(vir_mtab1)[1]==0){
     summary_resvir<-res_mtab1
     summary_resvir[summary_resvir=="0"]<-NA
+    head(summary_resvir[,"blaKPC-2"])
     
   } else if (dim(res_mtab1)[1]==0){
     summary_resvir<-vir_mtab1
     summary_resvir[summary_resvir=="0"]<-NA
+    head(summary_resvir[,"blaKPC-2"])
     
   }else{
     
+  
+    vir_mtab1<-vir_mtab1[rownames(res_mtab1),]
     summary_resvir<-cbind(vir_mtab1,res_mtab1)
     summary_resvir[summary_resvir=="0"]<-NA
+    head(summary_resvir[,"blaKPC-2"])
     
   }
   
@@ -252,7 +262,6 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   cluster_hm_levels <-res_hm + new_scale_fill()
   
   
-  
   suppressMessages(
     
     
@@ -268,9 +277,9 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
          units = "cm",scale=1.2,limitsize = F)
   
   
-  
   ###########  CLUSTER AND  NO RESISTANCE
   
+
   
 } else if (file.exists("summary_resistance_virulence.txt")==FALSE) {
   
@@ -325,10 +334,10 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   report$Name<-gsub(".fna","",report$Name)
   report$Name<-gsub(".fasta","",report$Name)
   
-  refname<-unique(report[-which(report$Name %in% tree$tip.label),"Name"])
-  
-  report$Name<-ifelse(report$Name==refname,report$Contig.id,report$Name)
-  
+  # refname<-unique(report[-which(report$Name %in% tree$tip.label),"Name"])
+  # 
+  # report$Name<-ifelse(report$Name==refname,report$Contig.id,report$Name)
+  # 
   report_res<-report[which(report$COVERAGE=="100.00" & report$IDENTITY=="100.00"),]
   report_res<-report_res[which(report_res$Element.type=="AMR" | report_res$Element.type=="STRESS"),]
   report_vir<-report[which(as.numeric(report$COVERAGE)>80 & as.numeric(report$IDENTITY)>80),]
@@ -392,11 +401,12 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
     summary_resvir[summary_resvir=="0"]<-NA
     
   }else{
-    
+    vir_mtab1<-vir_mtab1[rownames(res_mtab1),]
     summary_resvir<-cbind(vir_mtab1,res_mtab1)
     summary_resvir[summary_resvir=="0"]<-NA
     
   }
+  
   
   
   pp <- p %<+% rr + geom_tiplab(aes(fontface=length(rr$STRAIN_ID)*0.005),alpha=1,size=labsize*0.75,offset = 0.1,show.legend = FALSE)+
