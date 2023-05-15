@@ -193,7 +193,6 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   
   res_mtab1[res_mtab1=="1"]<-"AMR/STRESS"
   
-  head(res_mtab1[,"blaKPC-2"])
   
   vir_tab<-table(report_vir$Name,report_vir$Gene.symbol)
   vir_mtab<-as.matrix(vir_tab)
@@ -220,12 +219,10 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
   if (dim(vir_mtab1)[1]==0){
     summary_resvir<-res_mtab1
     summary_resvir[summary_resvir=="0"]<-NA
-    head(summary_resvir[,"blaKPC-2"])
     
   } else if (dim(res_mtab1)[1]==0){
     summary_resvir<-vir_mtab1
     summary_resvir[summary_resvir=="0"]<-NA
-    head(summary_resvir[,"blaKPC-2"])
     
   }else{
     
@@ -233,7 +230,6 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
     vir_mtab1<-vir_mtab1[rownames(res_mtab1),]
     summary_resvir<-cbind(vir_mtab1,res_mtab1)
     summary_resvir[summary_resvir=="0"]<-NA
-    head(summary_resvir[,"blaKPC-2"])
     
   }
   
