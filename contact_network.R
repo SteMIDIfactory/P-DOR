@@ -19,7 +19,7 @@ hospitalization_file <- args[1]
 
 hospitalization<-read.delim(hospitalization_file,sep='\t')
 
-#hospitalization<-read.delim("sample_metadata_table_2.txt",sep='\t')
+#hospitalization<-read.delim("metadata.txt",sep='\t')
 ###########################################################################
 hospitalization$STRAIN_ID<-gsub(".fna","",hospitalization$STRAIN_ID)
 hospitalization$STRAIN_ID<-gsub(".fasta","",hospitalization$STRAIN_ID)
@@ -48,13 +48,26 @@ cluster_file<-read.csv(list.files(pattern = "csv"),sep='')
 cluster_file$cluster<-as.character(cluster_file$cluster)
 cluster_file$STRAIN_ID<-as.character(cluster_file$STRAIN_ID)
 
+  
 out<-grep("BD",cluster_file$STRAIN_ID,value = T)
+
+if (length(out)>0){
+  
 cluster_file<-cluster_file[-which(cluster_file$STRAIN_ID %in% out),]
 
 freq_clust<-as.data.frame(table(cluster_file$cluster))
 colnames(freq_clust)<-c("cluster","freq")
+
 hosp_clust<-freq_clust[which(freq_clust$freq>1),"cluster"]
 cluster_file<-cluster_file[which(cluster_file$cluster %in% hosp_clust),]
+
+} else { 
+
+cluster_file<-read.csv(list.files(pattern = "csv"),sep='')
+cluster_file$cluster<-as.character(cluster_file$cluster)
+cluster_file$STRAIN_ID<-as.character(cluster_file$STRAIN_ID)
+}
+
 ########################################################################
 mm<-merge(hospitalization,cluster_file,by = "STRAIN_ID",all = T)
 clust<-select(mm,ISOLATION_DATE,PATIENT_ID, cluster)
@@ -75,6 +88,7 @@ names(ward) <- levels(factor(moving$WARD2))
 #pal_ward<-c("#e8177d","#7c44ad","#0072B2","#336a8f" ,"#2b9900" ,"#B3B3B3")
 #ward<-pal_ward[1:length(levels(factor(moving$WARD2)))]
 #names(ward) <- levels(factor(moving$WARD2))
+#moving<-merge(moving,mm)
 
 suppressWarnings(contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end=WARD_DATE_EXIT, aes(WARD_DATE_ENTRY, PATIENT_ID)) +
                    theme_classic()+
@@ -95,7 +109,6 @@ suppressWarnings(contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end
                              size=length(moving$PATIENT_ID)*0.08,alpha=1)+
                    scale_color_manual(values = brewer.pal(length(levels(factor(clust$cluster))), "Set2"))
                    
-                  
 )
 
 
@@ -103,6 +116,7 @@ suppressWarnings(contact_network_plot<-ggplot(moving, start=WARD_DATE_ENTRY, end
 #adj<-ggplot_build(contact_network_plot)
 var_height<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$y$get_labels())
 var_width<-length(ggplot_build(contact_network_plot)$layout$panel_params[[1]]$x$get_labels())
+
 
 ggsave(plot = contact_network_plot, filename = "contact_network_plot.svg",
        width = var_width*3, height=var_height*3 , units = "cm",limitsize = F,scale = 1)
