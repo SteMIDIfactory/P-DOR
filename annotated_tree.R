@@ -122,7 +122,7 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
     
   )
   
-  ggsave(hm_cluster, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
+  ggsave(hm_cluster, filename = "annotated_tree.svg",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
          units = "cm",scale=1.2,limitsize = F)
   
   
@@ -269,7 +269,7 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
     
   )
   
-  ggsave(hm_cluster, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
+  ggsave(hm_cluster, filename = "annotated_tree.svg",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
          units = "cm",scale=1.2,limitsize = F)
   
   
@@ -298,7 +298,7 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
     
   )
   
-  ggsave(hm_cluster, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
+  ggsave(hm_cluster, filename = "annotated_tree.svg",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
          units = "cm",scale=1.2,limitsize = F)
   
   
@@ -423,7 +423,7 @@ if (length(unique(rr$cluster))==1 && is.na(unique(rr$cluster))){
     
   )
   
-  ggsave(res_hm, filename = "annotated_tree.pdf",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
+  ggsave(res_hm, filename = "annotated_tree.svg",width = length(tree$tip.label)*1.5, height=length(tree$tip.label)*1.7 ,
          units = "cm",scale=1.2,limitsize = F)
   
   
