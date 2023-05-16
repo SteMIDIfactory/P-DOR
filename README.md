@@ -126,7 +126,7 @@ Here is the Core-SNP distribution histogram, after P-DOR is run the second time
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/SNP_heatmap_query_vs_all.svg)
 
 
-4) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters (Filename: annotated_tree.pdf)
+4) Maximum Likelihood SNP-based phylogeny with annotated tips according to presence-absence of the genetic determinants of resistance and virulence.   Labels are colored based on the outbreak clusters (Filename: annotated_tree.svg)
 
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/annotated_tree_resvir_cluster.svg)
 
