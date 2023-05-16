@@ -80,7 +80,7 @@ def check_res_vir(threads,AD_folder):
 	print ("Checking for resistance and virulence genes...")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+AD_folder)
 	path_res=path_dir+"/"+Results_folder_name+"/"+AD_folder
-	cmd=("cp %s %s") %(os.path.abspath(ref),path_res)
+	cmd=("cp %s %s/REF.fna") %(os.path.abspath(ref),path_res)
 	os.system(cmd)
 	os.system("amrfinder --update")
 	organism=parse_species(args.species)
@@ -90,7 +90,7 @@ def check_res_vir(threads,AD_folder):
 		os.system("ls *fna | parallel -j %i 'amrfinder -n {} --plus --threads 1 -o {}.txt -O %s --name {}'" %(threads,organism))
 	os.system("cat *fna.txt >summary_resistance_virulence.txt")
 	os.system("rm *fna.txt")
-	rm_ref=("rm %s/%s") %(path_res,ref.split("/")[-1])
+	rm_ref=("rm %s/REF.fna") %(path_res)
 	os.system(rm_ref)
 	os.system("mv summary_resistance_virulence.txt %s/%s" %(path_dir,Results_folder_name))
 
@@ -194,8 +194,9 @@ for gen in genomes_query:
 
 for gen_names in genomes_query:
 	ext=gen_names.strip().split(".")[-1]
+	fname=".".join(gen_names.strip().split(".")[:-1])
 	if (ext == "fa" or ext == "fasta") :
-		os.rename ("%s/%s" %(ABS_query_folder,gen_names), "%s/%s.fna" %(ABS_query_folder,gen_names.strip(ext).strip(".")))
+		os.rename ("%s/%s" %(ABS_query_folder,gen_names), "%s/%s.fna" %(ABS_query_folder,fname))
 
 NEAREST=[]
 for i in genomes_query:
