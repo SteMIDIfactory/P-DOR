@@ -76,12 +76,11 @@ def parse_species(sp):
                 organism=test
     return organism
 
-def check_res_vir(threads,AD_folder):
+def check_res_vir(threads,AD_folder,i_ref):
 	print ("Checking for resistance and virulence genes...")
-	os.chdir(path_dir+"/"+Results_folder_name+"/"+AD_folder)
 	path_res=path_dir+"/"+Results_folder_name+"/"+AD_folder
-	cmd=("cp %s %s/REF.fna") %(os.path.abspath(ref),path_res)
-	os.system(cmd)
+	os.chdir(path_res)
+	os.system("cp ../%s ." %(i_ref))
 	os.system("amrfinder --update")
 	organism=parse_species(args.species)
 	if organism=="":
@@ -90,19 +89,19 @@ def check_res_vir(threads,AD_folder):
 		os.system("ls *fna | parallel -j %i 'amrfinder -n {} --plus --threads 1 -o {}.txt -O %s --name {}'" %(threads,organism))
 	os.system("cat *fna.txt >summary_resistance_virulence.txt")
 	os.system("rm *fna.txt")
-	rm_ref=("rm %s/REF.fna") %(path_res)
-	os.system(rm_ref)
-	os.system("mv summary_resistance_virulence.txt %s/%s" %(path_dir,Results_folder_name))
+	os.system("rm %s/%s" %(path_res,i_ref.split("/")[-1]))
 
-def Mummer_snp_call(threads,ref,Align_folder):
-	#os.rename(".fasta",".fna").replace(".fa","fna")
+	os.system("mv summary_resistance_virulence.txt %s/%s" %(path_dir,Results_folder_name))
+	os.chdir("..")
+
+def Mummer_snp_call(threads,i_ref,Align_folder):
 	print("Aligning genomes with Mummer4...\n")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+Align_folder)
-	os.system('ls *fna| parallel -j %i "nucmer --maxgap=500 -p {} %s {}; delta-filter -1 {}.delta > {}_filtered.delta; show-snps -H -C -I -r -T {}_filtered.delta | cut -f1,2,3 >{}.snp"' %(threads,ref))
+	os.system('ls *fna| parallel -j %i "nucmer --maxgap=500 -p {} %s {}; delta-filter -1 {}.delta > {}_filtered.delta; show-snps -H -C -I -r -T {}_filtered.delta | cut -f1,2,3 >{}.snp"' %(threads,i_ref))
 	os.chdir(path_dir+"/"+Results_folder_name)
 	os.system("ls %s/*.snp >SNP_genomes.list" %(Align_folder))
 	core_snps_list_path("SNP_genomes.list", snp_spacing, "SNP_positions")
-	core_snps_2_fasta("SNP_genomes.list", "SNP_positions.core.list",ref,"SNP_alignment")
+	core_snps_2_fasta("SNP_genomes.list", "SNP_positions.core.list",i_ref,"SNP_alignment")
 	if os.stat("SNP_alignment.core.fasta").st_size > 10:
 		print ("Core-SNPs aligmment detected!\n")
 	else:
@@ -192,6 +191,11 @@ for gen in genomes_query:
 	else:
 		sys.exit("\n\nERROR: your query genome folder does not contain fasta files!!!")
 
+### format REF
+alt_ref=SeqIO.read(ref,"fasta")
+alt_ref.id="REF_%s" %(str(alt_ref.id).split(".")[0])
+SeqIO.write(alt_ref,"%s/%s.fna" %(Results_folder_name,alt_ref.id),"fasta")
+
 for gen_names in genomes_query:
 	ext=gen_names.strip().split(".")[-1]
 	fname=".".join(gen_names.strip().split(".")[:-1])
@@ -275,9 +279,10 @@ aln_folder_size=os.popen("ls Align/ | wc -l").read().strip()
 os.system("rm -rf Background")
 
 if args.amrf==True:
-    check_res_vir(threads,"Analysis_Dataset")
+    check_res_vir(threads,"Analysis_Dataset","%s.fna" %(alt_ref.id))
 
-Mummer_snp_call(threads,ref,"Align")
+alt_ref_abs=os.path.abspath("%s.fna" %(alt_ref.id))
+Mummer_snp_call(threads,alt_ref_abs,"Align")
 os.mkdir("SNPs")
 os.system("mv Align/*.snp SNPs/")
 snp_num=os.popen("ls SNPs/*.snp | wc -l").read().strip()
@@ -318,6 +323,7 @@ if args.amrf==True:
     os.system("mv summary_resistance_virulence.txt Other_output_files/")
 
 os.chdir(path_dir)
+os.system("rm %s" %(alt_ref_abs))
 
 time=float(time.time() - start_time)
 hours=int(time/3600)
