@@ -74,7 +74,7 @@ Test whether the pipeline generates all the expected outputs on your system, run
 python3.8 P-DOR.py -TEST
 ```
 
-### Pre-sketched databases
+### Pre-sketched Source Datasets
 Pre-sketched ESKAPE genomes are available [here!](https://drive.google.com/drive/folders/1K7PzZb9TmvhtAmLVzIujDnFTlT7CNjQi?usp=sharing)
 
 ### Build your own sketch
@@ -136,11 +136,13 @@ Here is the Core-SNP distribution histogram, after P-DOR is run the second time
 
 
 ## Coming soon
+- Web-based GUI
 - Possibility to use a reference genome that is split into multiple contigs/chromosomes
+- Possibility to pick the reference genome from the SD automatically
+- Possibility to have the correct SNP-distance threshold suggested by P-DOR
 - Implementation of the [SCOTTI](https://github.com/Taming-the-BEAST/SCOTTI-Tutorial) tool for the reconstruction of the chain of transmission via Bayesian inference
-- Genome assembly, both short and long reads
 - Genome characterization: MLST
 - Utilization of secondary SNP alignments (e.g. codon 3rd position SNP alignment, intergenic SNP alignment) for downstream analyses
 
 ### Citation
-DOI: 10.5281/zenodo.6481025
+Coming Soon!
