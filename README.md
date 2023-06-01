@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/455542613.svg)](https://zenodo.org/badge/latestdoi/455542613)
+[![DOI](https://img.shields.io/badge/bioRxiv-10.1101%2F2023.05.30.542810-%23B31B1B)](https://doi.org/10.1101/2023.05.30.542810)
 <img src="/sample_images/p-dor_logo.png" align="right" alt="Filtlong" height="280">
 # P-DOR - a Pipeline to Disentangle Outbreaks Rapidly 
 
@@ -145,4 +145,4 @@ Here is the Core-SNP distribution histogram, after P-DOR is run the second time
 - Utilization of secondary SNP alignments (e.g. codon 3rd position SNP alignment, intergenic SNP alignment) for downstream analyses
 
 ### Citation
-Coming Soon!
+P-DOR is on [bioRxiv](https://doi.org/10.1101/2023.05.30.542810)
