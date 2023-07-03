@@ -162,9 +162,13 @@ def humansize(nbytes):
 	f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
 	return '%s %s' % (f, suffixes[i])
 
+
 def download_genome(dwlist):
 	for genome in dwlist:
-		request.urlretrieve("ftp://ftp.bvbrc.org/genomes/%s/%s.fna" %(genome, genome),"%s.fna" %(genome))
+		try:
+			request.urlretrieve("ftp://ftp.bvbrc.org/genomes/%s/%s.fna" %(genome, genome),"%s.fna" %(genome))
+		except:
+			print("Genome %s was not found on the BV-BRC ftp site" %(genome))
 
 
 
