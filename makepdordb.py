@@ -60,7 +60,7 @@ def main():
 				except:
 					extragenomes.append(name)
 			if len(extragenomes)>0:
-				extrafolder=args.folder.strip().split("/")
+				extrafolder=args.folder.strip().rstrip("/").split("/")
 				extrafolder[-1]="Excluded_"+extrafolder[-1]
 				extrafolder=os.path.abspath("/".join(extrafolder))
 				os.mkdir(extrafolder)
