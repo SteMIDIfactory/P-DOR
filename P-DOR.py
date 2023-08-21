@@ -97,7 +97,23 @@ def check_res_vir(threads,AD_folder,i_ref):
 def Mummer_snp_call(threads,i_ref,Align_folder):
 	print("Aligning genomes with Mummer4...\n")
 	os.chdir(path_dir+"/"+Results_folder_name+"/"+Align_folder)
-	os.system('ls *fna| parallel -j %i "nucmer --maxgap=500 -p {} %s {}; delta-filter -1 {}.delta > {}_filtered.delta; show-snps -H -C -I -r -T {}_filtered.delta | cut -f1,2,3 >{}.snp"' %(threads,i_ref))
+	os.system('ls *fna | parallel -j %i "nucmer --maxgap=500 -p {} %s {}; delta-filter -1 {}.delta > {}_filtered.delta; show-snps -H -C -I -r -T {}_filtered.delta | cut -f1,2,3 >{}.snp"' %(threads,i_ref))
+	os.system('ls *_filtered.delta | parallel -j %i "dnadiff -d {} -p {}_info >/dev/null 2>&1"' %(threads))
+	reportFiles=glob.glob("*.report")
+	rFdict={}
+	for rF in reportFiles:
+		rFcontent=open(rF,"r").read().split("\n")
+		rFdict[rF.strip().replace(".fna_filtered.delta_info.report","")]=float([t.strip().split()[-1].split("(")[1].split("%")[0] for t in rFcontent if "AlignedBase" in t][0])
+	with open("Coverage_report.txt","w") as rFout:
+		sleep=False
+		for t in rFdict.keys():
+			if rFdict[t]<70:
+				sleep=True
+				print("\n\nWARNING! Genome %s aligns poorly to the REFERENCE GENOME (%f %% horizontal coverage). Please, check!\n\n" %(t,rFdict[t]))
+			rFout.write("%s\t%f\n" %(t,rFdict[t]))
+		if sleep==True:
+			time.sleep(10)
+	#sys.exit()
 	os.chdir(path_dir+"/"+Results_folder_name)
 	os.system("ls %s/*.snp >SNP_genomes.list" %(Align_folder))
 	core_snps_list_path("SNP_genomes.list", snp_spacing, "SNP_positions")
@@ -285,6 +301,7 @@ alt_ref_abs=os.path.abspath("%s.fna" %(alt_ref.id))
 Mummer_snp_call(threads,alt_ref_abs,"Align")
 os.mkdir("SNPs")
 os.system("mv Align/*.snp SNPs/")
+os.system("mv Align/Coverage_report.txt .")
 snp_num=os.popen("ls SNPs/*.snp | wc -l").read().strip()
 if int(snp_num)!=int(aln_folder_size):
     sys.exit("\n\nERROR! Something went wrong! Not all .snp files were produced")
