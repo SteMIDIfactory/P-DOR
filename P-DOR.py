@@ -311,7 +311,7 @@ print("Performing phylogenetic reconstruction...\n")
 cmd="iqtree -s SNP_alignment.core.fasta -pre SNP_alignment -m MFP+GTR+ASC -bb 1000 -nt %i" %(threads)
 os.system(cmd)
 
-os.system("Rscript %s/Snpbreaker.R SNP_alignment.core.fasta %s" %(prog_dir,args.snp_threshold))
+os.system("$CONDA_PREFIX/bin/Rscript %s/Snpbreaker.R SNP_alignment.core.fasta %s" %(prog_dir,args.snp_threshold))
 
 
 if args.amrf==True:
@@ -319,10 +319,10 @@ if args.amrf==True:
     if int(emptyAMRF)<=1:
         os.system("rm summary_resistance_virulence.txt")
 
-os.system("Rscript %s/annotated_tree.R SNP_alignment.treefile" %(prog_dir))
+os.system("$CONDA_PREFIX/bin/Rscript %s/annotated_tree.R SNP_alignment.treefile" %(prog_dir))
 
 if args.meta is not None:
-	os.system("Rscript %s/contact_network.R %s" %(prog_dir,ABSmeta))
+	os.system("$CONDA_PREFIX/bin/Rscript %s/contact_network.R %s" %(prog_dir,ABSmeta))
 
 ###ORGANIZE OUTPUT
 os.mkdir("Other_output_files")
