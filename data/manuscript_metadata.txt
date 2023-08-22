@@ -1,0 +1,14 @@
+PATIENT_ID	STRAIN_ID	WARD_DATE_ENTRY	WARD_DATE_EXIT	WARD	ISOLATION_DATE	MATERIAL
+patient1	sim.gen1_G1	2021-10-02	2021-10-07	Surgery	2021-10-10	rectal_swab
+patient1	sim.gen3_G1	2021-10-7	2021-11-02	ICU	2021-10-20	blood
+patient1	sim.gen2_G1	2021-11-02	2021-11-15	Cardiology	2021-11-06	urine
+patient2	sim.gen1_G2	2021-10-10	2021-10-20	ICU	2021-10-13	rectal_swab
+patient2	sim.gen2_G2	2021-10-20	2021-10-24	Cardiology	2021-10-21	rectal_swab
+patient2	sim.gen3_G2	2021-10-24	2021-11-10	ICU	2021-11-02	rectal_swab
+patient3	sim.gen4_G1	2021-11-26	2021-12-02	Cardiology	2021-12-05	blood
+patient3	sim.gen4_G1	2021-12-02	2021-12-09	ICU	2021-12-05	blood
+patient4	sim.gen5_G2	2021-11-06	2021-11-10	ICU	2021-11-10	rectal_swab
+patient4	sim.gen4_G2	2021-11-10	2021-11-20	Surgery	2021-11-17	urine
+patient5	sim.gen5_G1	2021-11-13	2021-11-20	ICU	2021-12-02	blood
+patient5	sim.gen5_G1	2021-11-20	2021-12-07	Cardiology	2021-12-02	blood
+patient6	sim.gen6_G1	2021-11-05	2021-12-02	Cardiology	2021-11-17	blood
