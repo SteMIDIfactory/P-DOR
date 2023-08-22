@@ -68,7 +68,8 @@ Additional arguments:
 ```
 ### Test run
 
-Test whether the pipeline generates all the expected outputs on your system, run the following command. 
+Test whether the pipeline generates all the expected outputs on your system, run the following command.
+If you are looking for the vignette run described in the P-DOR Manuscript, it is here!
 
 ```
 python3.8 P-DOR.py -TEST
@@ -97,6 +98,32 @@ Finally, makepdordb can be used to sketch a local collection of genomes (CAUTION
 python3.8 makepdordb.py sketch -f [path to the folder containing the local genomes]
 ```
 
+## Vignette
+Here are the instructions to repeat the analysis described in the P-DOR manuscript, available on [bioRxiv](https://doi.org/10.1101/2023.05.30.542810).
+
+
+First, you need to obtain the updated version of the **_Klebsiella pneumoniae_ SD file** from [here!](https://drive.google.com/file/d/1pLxmF6XjtHEjUy8T_0sbzjBTtY2pHtzC/view?usp=drive_link)
+
+
+Then, you can try to run the analysis with 2 threads:
+```
+python3.8 P-DOR.py -q data/manuscript_genomes/ -sd [path/to/Klebsiella_pneumoniae.msh] -ref data/RefST11.fna -snp_thr 21 -t 2 -n 20 -meta data/manuscript_metadata.txt
+```
+and with the AMRFinderPlus step:
+```
+python3.8 P-DOR.py -q data/manuscript_genomes/ -sd [path/to/Klebsiella_pneumoniae.msh] -ref data/RefST11.fna -snp_thr 21 -t 2 -n 20 -meta data/manuscript_metadata.txt -amrf -species 'Klebsiella pneumoniae'
+```
+Or using 20 threads (or as many as you have available)
+```
+python3.8 P-DOR.py -q data/manuscript_genomes/ -sd [path/to/Klebsiella_pneumoniae.msh] -ref data/RefST11.fna -snp_thr 21 -t 20 -n 20 -meta data/manuscript_metadata.txt
+```
+```
+python3.8 P-DOR.py -q data/manuscript_genomes/ -sd [path/to/Klebsiella_pneumoniae.msh] -ref data/RefST11.fna -snp_thr 21 -t 20 -n 20 -meta data/manuscript_metadata.txt -amrf -species 'Klebsiella pneumoniae'
+```
+**DON'T TRY THIS AT HOME!** Here is the command to repeat the analysis using the 1000 closest genomes as Background Dataset. Beware: it will take a very long time and adding so many genomes makes very little sense from a biological point of view
+```
+python3.8 P-DOR.py -q data/manuscript_genomes/ -sd [path/to/Klebsiella_pneumoniae.msh] -ref data/RefST11.fna -snp_thr 21 -t 20 -n 1000 -meta data/manuscript_metadata.txt
+```
 
 ## Output
 
