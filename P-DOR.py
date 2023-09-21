@@ -41,7 +41,7 @@ def parse_args():
     optional.add_argument('-n', type=int,help='Maximum closest genomes from Source Dataset (SD) [Default: %(default)s]',metavar="<int>",dest="near",default=20)
     optional.add_argument('-t', type=int,help='number of threads [Default: %(default)s]',metavar="<int>",dest="threads",default=2)
     parser.add_argument('-TEST', action= 'store_true',help='TEST MODE. Warning: this option overrides all other arguments', required=False)
-    parser.add_argument('-v', '--version', action='version', version='P-DOR v1.0')
+    parser.add_argument('-v', '--version', action='version', version='P-DOR v1.1')
 
     parser.set_defaults(amrf=False)
     parser.set_defaults(TEST=False)
