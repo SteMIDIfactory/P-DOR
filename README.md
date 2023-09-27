@@ -1,4 +1,4 @@
-[![DOI](https://img.shields.io/badge/Paper-10.1093/bioinformatics/btad571-167da4)]([https://doi.org/10.1101/2023.05.30.542810](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btad571/7272610))
+[![DOI](https://img.shields.io/badge/Paper-10.1093/bioinformatics/btad571-167da4)](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btad571/7272610)
 <img src="/sample_images/p-dor_logo.png" align="right" alt="Filtlong" height="280">
 # P-DOR - a Pipeline to Disentangle Outbreaks Rapidly 
 
