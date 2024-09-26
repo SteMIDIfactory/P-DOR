@@ -14,6 +14,9 @@ P-DOR is a bioinformatic pipeline for rapid WGS-based bacterial outbreak detecti
 5) A screening for resistance and virulence determinants is also performed through [AMRFinderPlus](https://www.ncbi.nlm.nih.gov/pathogens/antimicrobial-resistance/AMRFinder/).
 6) If patient metadata (i.e. ward of hospitalization, date of admission and discharge) are provived, the pipeline reconstruct the route of transmission  through a temporal and spatial representation of the outbreak.
 
+## Notes
+It is recommended to use P-DOR with relatively small datasets (e.g. N<100), as this might resemble a plausible outbreak population in reality. However, P-DOR can be used also on hundreds/thousands of samples, but in that case the annotations of clusters and resistance/virulence determinants on the phylogeny plot might not be highly readable. We will soon update P-DOR with a new mode to allow the user to handle the visualization of larger epidemic events.
+
 ## Installation
 ### Requirements
 - Linux-based OS
@@ -99,7 +102,7 @@ python3.8 makepdordb.py sketch -f [path to the folder containing the local genom
 ```
 
 ## Vignette
-Here are the instructions to repeat the analysis described in the P-DOR manuscript, available on [bioRxiv](https://doi.org/10.1101/2023.05.30.542810).
+Here are the instructions to repeat the analysis described in the P-DOR manuscript, available on [Bioinformatics](https://doi.org/10.1093/bioinformatics/btad571).
 
 
 First, you need to obtain the updated version of the **_Klebsiella pneumoniae_ SD file** from [here!](https://drive.google.com/file/d/1pLxmF6XjtHEjUy8T_0sbzjBTtY2pHtzC/view?usp=drive_link)
