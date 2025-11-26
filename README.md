@@ -165,6 +165,18 @@ Here is the Core-SNP distribution histogram, after P-DOR is run the second time
 ![alt text](https://github.com/SteMIDIfactory/P-DOR/blob/master/sample_images/contact_network_plot.svg)
 
 
+## P-DOR minimal
+The repository also contains a python script "P-DOR_minimal.py", which can be used to obtain large SNP alignments quickly, without the need to install the entire P-DOR environment. The script has only 3 dependencies: 
+- Biopython
+- gnu-parallel
+- Mummer4
+
+Usage: 
+```
+python P-DOR_minimal.py -f [Path to folder containing input genomes] -r [Path to reference complete genome] -o [name of the output folder]
+```
+
+
 ## Coming soon
 - Web-based GUI
 - Possibility to use a reference genome that is split into multiple contigs/chromosomes
